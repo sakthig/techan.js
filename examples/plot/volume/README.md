@@ -1,1 +1,1 @@
-Candlestick rendering demo.
+Volume rendering demo.
