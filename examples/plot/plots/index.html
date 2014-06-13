@@ -13,8 +13,8 @@
         shape-rendering: crispEdges;
     }
 
-    .candle {
-        shape-rendering: crispEdges;
+    text.symbol {
+        fill: #BBBBBB;
     }
 
     path.candle {
@@ -94,6 +94,10 @@
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    svg.append('text')
+            .attr("class", "symbol")
+            .text("Facebook, Inc. (FB)");
 
     var result = d3.csv("data.csv", function(error, data) {
         var accessor = candlestick.accessor();
