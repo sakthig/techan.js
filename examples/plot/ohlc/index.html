@@ -44,7 +44,7 @@
     var y = d3.scale.linear()
             .range([height, 0]);
 
-    var candlestick = techan.plot.ohlc()
+    var ohlc = techan.plot.ohlc()
             .xScale(x)
             .yScale(y);
 
@@ -64,7 +64,7 @@
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var result = d3.csv("data.csv", function(error, data) {
-        var accessor = candlestick.accessor();
+        var accessor = ohlc.accessor();
 
         data = data.slice(0, 200).map(function(d) {
             return {
@@ -82,7 +82,7 @@
 
         svg.append("g")
                 .attr("class", "ohlc")
-                .call(candlestick, data);
+                .call(ohlc, data);
 
         svg.append("g")
                 .attr("class", "x axis")
