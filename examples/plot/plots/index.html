@@ -62,11 +62,10 @@
     var y = d3.scale.linear()
             .range([height, 0]);
 
+    var yPercent = y.copy();   // Same as y at this stage, will get a different domain later
+
     var yVolume = d3.scale.linear()
             .range([height, height-volumeHeight]);
-
-    var percent = d3.scale.linear()
-            .range([height, 0]);
 
     var candlestick = techan.plot.candlestick()
             .xScale(x)
@@ -86,16 +85,16 @@
             .scale(y)
             .orient("right");
 
+    var percentAxis = d3.svg.axis()
+            .scale(yPercent)
+            .orient("right")
+            .tickFormat(d3.format('+.1%'));
+
     var volumeAxis = d3.svg.axis()
             .scale(yVolume)
             .orient("left")
             .ticks(4)
             .tickFormat(d3.format(",.3s"));
-
-    var percentAxis = d3.svg.axis()
-            .scale(percent)
-            .orient("right")
-            .tickFormat(d3.format('+.1%'));
 
     var svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -124,7 +123,7 @@
 
         x.domain(data.map(accessor.d));
         y.domain(techan.scale.plot.ohlc(accessor, data).domain());
-        percent.domain(techan.scale.plot.percent(y, accessor(data[0])).domain());
+        yPercent.domain(techan.scale.plot.percent(y, accessor(data[0])).domain());
         yVolume.domain(techan.scale.plot.volume(accessor.v, data).domain());
 
         svg.append("g")
