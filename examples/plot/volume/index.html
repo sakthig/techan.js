@@ -62,10 +62,10 @@
     var svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
-            .append("g")
+        .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var result = d3.csv("data.csv", function(error, data) {
+    d3.csv("data.csv", function(error, data) {
         var accessor = volume.accessor();
 
         data = data.slice(0, 200).map(function(d) {
@@ -85,8 +85,9 @@
         y.domain(techan.scale.plot.volume(accessor.v, data).domain());
 
         svg.append("g")
+                .data([data])
                 .attr("class", "volume")
-                .call(volume, data);
+                .call(volume);
 
         svg.append("g")
                 .attr("class", "x axis")
@@ -96,7 +97,7 @@
         svg.append("g")
                 .attr("class", "y axis")
                 .call(yAxis)
-                .append("text")
+            .append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 6)
                 .attr("dy", ".71em")
