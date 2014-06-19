@@ -54,6 +54,7 @@
             .range([height, 0]);
 
     var candlestick = techan.plot.candlestick()
+            .volumeOpacity(true)
             .xScale(x)
             .yScale(y);
 
@@ -72,7 +73,7 @@
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var result = d3.csv("data.csv", function(error, data) {
+    d3.csv("data.csv", function(error, data) {
         var accessor = candlestick.accessor();
 
         data = data.slice(0, 200).map(function(d) {
@@ -90,8 +91,9 @@
         y.domain(techan.scale.plot.ohlc(accessor, data).domain());
 
         svg.append("g")
+                .data([data])
                 .attr("class", "candlestick")
-                .call(candlestick, data);
+                .call(candlestick);
 
         svg.append("g")
                 .attr("class", "x axis")
