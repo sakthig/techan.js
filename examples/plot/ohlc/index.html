@@ -63,7 +63,7 @@
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var result = d3.csv("data.csv", function(error, data) {
+    d3.csv("data.csv", function(error, data) {
         var accessor = ohlc.accessor();
 
         data = data.slice(0, 200).map(function(d) {
@@ -81,8 +81,9 @@
         y.domain(techan.scale.plot.ohlc(accessor, data).domain());
 
         svg.append("g")
+                .data([data])
                 .attr("class", "ohlc")
-                .call(ohlc, data);
+                .call(ohlc);
 
         svg.append("g")
                 .attr("class", "x axis")
