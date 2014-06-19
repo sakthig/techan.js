@@ -43,8 +43,21 @@
         fill: #DDDDDD;
     }
 
+    rect.pane {
+        cursor: move;
+        fill: none;
+        pointer-events: all;
+    }
+
+    button {
+        position: absolute;
+        right: 110px;
+        top: 25px;
+    }
+
 </style>
 <body>
+<button>Reset</button>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
@@ -55,6 +68,11 @@
             volumeHeight = 100;
 
     var parseDate = d3.time.format("%d-%b-%y").parse;
+
+    var zoom = d3.behavior.zoom()
+            .on("zoom", draw);
+
+    var zoomPercent = d3.behavior.zoom();
 
     var x = techan.scale.financetime()
             .range([0, width]);
@@ -99,18 +117,62 @@
     var svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
-            .append("g")
+        .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    svg.append("clipPath")
+            .attr("id", "clip")
+        .append("rect")
+            .attr("x", 0)
+            .attr("y", y(1))
+            .attr("width", width)
+            .attr("height", y(0) - y(1));
 
     svg.append('text')
             .attr("class", "symbol")
             .attr("x", 50)
             .text("Facebook, Inc. (FB)");
 
-    var result = d3.csv("data.csv", function(error, data) {
+    svg.append("g")
+            .attr("class", "volume")
+            .attr("clip-path", "url(#clip)");
+
+    svg.append("g")
+            .attr("class", "candlestick")
+            .attr("clip-path", "url(#clip)");
+
+    svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")");
+
+    svg.append("g")
+            .attr("class", "y axis")
+            .attr("transform", "translate(" + width + ",0)")
+        .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -12)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Price ($)");
+
+    svg.append("g")
+            .attr("class", "percent axis");
+
+    svg.append("g")
+            .attr("class", "volume axis");
+
+    svg.append("rect")
+            .attr("class", "pane")
+            .attr("width", width)
+            .attr("height", height)
+            .call(zoom);
+
+    d3.select("button").on("click", reset);
+
+    d3.csv("data.csv", function(error, data) {
         var accessor = candlestick.accessor();
 
-        data = data.slice(0, 200).map(function(d) {
+        data = data.map(function(d) {
             return {
                 date: parseDate(d.Date),
                 open: +d.Open,
@@ -126,37 +188,31 @@
         yPercent.domain(techan.scale.plot.percent(y, accessor(data[0])).domain());
         yVolume.domain(techan.scale.plot.volume(accessor.v, data).domain());
 
-        svg.append("g")
-                .attr("class", "volume")
-                .call(volume, data);
+        svg.select("g.candlestick").data([data]);
+        svg.select("g.volume").data([data]);
 
-        svg.append("g")
-                .attr("class", "candlestick")
-                .call(candlestick, data);
+        draw();
 
-        svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
-
-        svg.append("g")
-                .attr("class", "y axis")
-                .attr("transform", "translate(" + width + ",0)")
-                .call(yAxis)
-                .append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", -12)
-                .attr("dy", ".71em")
-                .style("text-anchor", "end")
-                .text("Price ($)");
-
-        svg.append("g")
-                .attr("class", "percent axis")
-                .call(percentAxis);
-
-        svg.append("g")
-                .attr("class", "volume axis")
-                .call(volumeAxis);
+        // Associate the zoom with the scale after a domain has been applied
+        zoom.x(x.zoomable()).y(y);
+        zoomPercent.y(yPercent);
     });
+
+    function reset() {
+        zoom.scale(1);
+        zoom.translate([0,0]);
+        draw();
+    }
+
+    function draw() {
+        zoomPercent.translate(zoom.translate());
+        zoomPercent.scale(zoom.scale());
+
+        svg.select("g.x.axis").call(xAxis);
+        svg.select("g.y.axis").call(yAxis);
+        svg.select("g.percent.axis").call(percentAxis);
+        svg.select("g.candlestick").call(candlestick);
+        svg.select("g.volume").call(volume);
+    }
 
 </script>
