@@ -188,8 +188,8 @@
         yPercent.domain(techan.scale.plot.percent(y, accessor(data[0])).domain());
         yVolume.domain(techan.scale.plot.volume(accessor.v, data).domain());
 
-        svg.select("g.candlestick").data([data]);
-        svg.select("g.volume").data([data]);
+        svg.select("g.candlestick").data([data]).call(candlestick);
+        svg.select("g.volume").data([data]).call(volume);
 
         draw();
 
@@ -212,8 +212,10 @@
         svg.select("g.y.axis").call(yAxis);
         svg.select("g.volume.axis").call(volumeAxis);
         svg.select("g.percent.axis").call(percentAxis);
-        svg.select("g.candlestick").call(candlestick);
-        svg.select("g.volume").call(volume);
+
+        // We know the data does not change, a simple refresh that does not perform data joins will suffice.
+        svg.select("g.candlestick").call(candlestick.refresh);
+        svg.select("g.volume").call(volume.refresh);
     }
 
 </script>
