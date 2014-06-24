@@ -2,4 +2,5 @@ Plots rendering demo. A sample of what can be created with the available plot ty
 * Candlestick
 * Volume
 * Percentage axis
+* Simple and Exponential Moving Averages
 * Zooming

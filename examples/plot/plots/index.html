@@ -49,6 +49,23 @@
         pointer-events: all;
     }
 
+    .indicator path.line {
+        fill: none;
+        stroke-width: 1;
+    }
+
+    .ma-0 path.line {
+        stroke: #1f77b4;
+    }
+
+    .ma-1 path.line {
+        stroke: #aec7e8;
+    }
+
+    .ma-2 path.line {
+        stroke: #ff7f0e;
+    }
+
     button {
         position: absolute;
         right: 110px;
@@ -86,6 +103,18 @@
             .range([height, height-volumeHeight]);
 
     var candlestick = techan.plot.candlestick()
+            .xScale(x)
+            .yScale(y);
+
+    var sma0 = techan.plot.sma()
+            .xScale(x)
+            .yScale(y);
+
+    var sma1 = techan.plot.sma()
+            .xScale(x)
+            .yScale(y);
+
+    var ema2 = techan.plot.ema()
             .xScale(x)
             .yScale(y);
 
@@ -142,6 +171,18 @@
             .attr("clip-path", "url(#clip)");
 
     svg.append("g")
+            .attr("class", "indicator sma ma-0")
+            .attr("clip-path", "url(#clip)");
+
+    svg.append("g")
+            .attr("class", "indicator sma ma-1")
+            .attr("clip-path", "url(#clip)");
+
+    svg.append("g")
+            .attr("class", "indicator ema ma-2")
+            .attr("clip-path", "url(#clip)");
+
+    svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")");
 
@@ -183,13 +224,16 @@
             };
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        x.domain(data.map(accessor.d));
-        y.domain(techan.scale.plot.ohlc(accessor, data).domain());
+        x.domain(techan.scale.plot.time(data, accessor).domain());
+        y.domain(techan.scale.plot.ohlc(data, accessor).domain());
         yPercent.domain(techan.scale.plot.percent(y, accessor(data[0])).domain());
-        yVolume.domain(techan.scale.plot.volume(accessor.v, data).domain());
+        yVolume.domain(techan.scale.plot.volume(data, accessor.v).domain());
 
         svg.select("g.candlestick").data([data]).call(candlestick);
         svg.select("g.volume").data([data]).call(volume);
+        svg.select("g.sma.ma-0").data([techan.indicator.sma().period(10)(data)]).call(sma0);
+        svg.select("g.sma.ma-1").data([techan.indicator.sma().period(20)(data)]).call(sma1);
+        svg.select("g.ema.ma-2").data([techan.indicator.ema().period(50)(data)]).call(ema2);
 
         draw();
 
@@ -216,6 +260,9 @@
         // We know the data does not change, a simple refresh that does not perform data joins will suffice.
         svg.select("g.candlestick").call(candlestick.refresh);
         svg.select("g.volume").call(volume.refresh);
+        svg.select("g.sma.ma-0").call(sma0.refresh);
+        svg.select("g.sma.ma-1").call(sma1.refresh);
+        svg.select("g.ema.ma-2").call(ema2.refresh);
     }
 
 </script>
