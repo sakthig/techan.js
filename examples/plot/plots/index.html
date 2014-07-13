@@ -17,6 +17,11 @@
         fill: #BBBBBB;
     }
 
+    path {
+        fill: none;
+        stroke-width: 1;
+    }
+
     path.candle {
         stroke: #000000;
     }
@@ -72,6 +77,39 @@
         top: 25px;
     }
 
+    path.macd {
+        stroke: #0000AA;
+    }
+
+    path.signal {
+        stroke: #FF9999;
+    }
+
+    path.zero {
+        stroke: #BBBBBB;
+        stroke-dasharray: 0;
+        stroke-opacity: 0.5;
+    }
+
+    path.difference {
+        fill: #BBBBBB;
+        opacity: 0.5;
+    }
+
+    path.rsi {
+        stroke: #000000;
+    }
+
+    path.overbought, path.oversold {
+        stroke: #FF9999;
+        stroke-dasharray: 5, 5;
+    }
+
+    path.middle, path.zero {
+        stroke: #BBBBBB;
+        stroke-dasharray: 5, 5;
+    }
+
 </style>
 <body>
 <button>Reset</button>
@@ -79,10 +117,21 @@
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
 
-    var margin = {top: 20, right: 50, bottom: 30, left: 50},
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom,
-            volumeHeight = 100;
+    var dim = {
+        width: 960, height: 500,
+        margin: { top: 20, right: 50, bottom: 30, left: 50 },
+        ohlc: { height: 305 },
+        indicator: { height: 65, padding: 5 }
+    };
+    dim.plot = {
+        width: dim.width - dim.margin.left - dim.margin.right,
+        height: dim.height - dim.margin.top - dim.margin.bottom
+    };
+    dim.indicator.top = dim.ohlc.height+dim.indicator.padding;
+    dim.indicator.bottom = dim.indicator.top+dim.indicator.height+dim.indicator.padding;
+
+    var indicatorTop = d3.scale.linear()
+            .range([dim.indicator.top, dim.indicator.bottom]);
 
     var parseDate = d3.time.format("%d-%b-%y").parse;
 
@@ -92,15 +141,15 @@
     var zoomPercent = d3.behavior.zoom();
 
     var x = techan.scale.financetime()
-            .range([0, width]);
+            .range([0, dim.plot.width]);
 
     var y = d3.scale.linear()
-            .range([height, 0]);
+            .range([dim.ohlc.height, 0]);
 
     var yPercent = y.copy();   // Same as y at this stage, will get a different domain later
 
     var yVolume = d3.scale.linear()
-            .range([height, height-volumeHeight]);
+            .range([y(0), y(0.2)]);
 
     var candlestick = techan.plot.candlestick()
             .xScale(x)
@@ -142,19 +191,63 @@
             .ticks(4)
             .tickFormat(d3.format(",.3s"));
 
-    var svg = d3.select("body").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var macdScale = d3.scale.linear()
+            .range([dim.indicator.height, 0]);
 
-    svg.append("clipPath")
-            .attr("id", "clip")
+    var rsiScale = macdScale.copy();
+
+    var macd = techan.plot.macd()
+            .xScale(x)
+            .yScale(macdScale);
+
+    var macdAxis = d3.svg.axis()
+            .scale(macdScale)
+            .ticks(3)
+            .orient("right");
+
+    var macdAxisLeft = d3.svg.axis()
+            .scale(macdScale)
+            .ticks(3)
+            .orient("left");
+
+    var rsi = techan.plot.rsi()
+            .xScale(x)
+            .yScale(rsiScale);
+
+    var rsiAxis = d3.svg.axis()
+            .scale(rsiScale)
+            .ticks(3)
+            .orient("right");
+
+    var rsiAxisLeft = d3.svg.axis()
+            .scale(rsiScale)
+            .ticks(3)
+            .orient("left");
+
+    var svg = d3.select("body").append("svg")
+            .attr("width", dim.width)
+            .attr("height", dim.height);
+
+    var defs = svg.append("defs");
+
+    defs.append("clipPath")
+            .attr("id", "ohlcClip")
         .append("rect")
             .attr("x", 0)
-            .attr("y", y(1))
-            .attr("width", width)
-            .attr("height", y(0) - y(1));
+            .attr("y", 0)
+            .attr("width", dim.plot.width)
+            .attr("height", dim.ohlc.height);
+
+    defs.append("clipPath")
+            .attr("id", "indicatorClip")
+        .append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", dim.plot.width)
+            .attr("height", dim.indicator.height);
+
+    svg = svg.append("g")
+            .attr("transform", "translate(" + dim.margin.left + "," + dim.margin.top + ")");
 
     svg.append('text')
             .attr("class", "symbol")
@@ -162,32 +255,16 @@
             .text("Facebook, Inc. (FB)");
 
     svg.append("g")
-            .attr("class", "volume")
-            .attr("clip-path", "url(#clip)");
-
-    svg.append("g")
-            .attr("class", "candlestick")
-            .attr("clip-path", "url(#clip)");
-
-    svg.append("g")
-            .attr("class", "indicator sma ma-0")
-            .attr("clip-path", "url(#clip)");
-
-    svg.append("g")
-            .attr("class", "indicator sma ma-1")
-            .attr("clip-path", "url(#clip)");
-
-    svg.append("g")
-            .attr("class", "indicator ema ma-2")
-            .attr("clip-path", "url(#clip)");
-
-    svg.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + height + ")");
+            .attr("transform", "translate(0," + dim.plot.height + ")");
 
-    svg.append("g")
-            .attr("class", "y axis")
-            .attr("transform", "translate(" + width + ",0)")
+    var ohlcSelection = svg.append("g")
+            .attr("class", "ohlc")
+            .attr("transform", "translate(0,0)");
+
+    ohlcSelection.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(" + x(1) + ",0)")
         .append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", -12)
@@ -195,22 +272,46 @@
             .style("text-anchor", "end")
             .text("Price ($)");
 
-    svg.append("g")
+    ohlcSelection.append("g")
+            .attr("class", "volume")
+            .attr("clip-path", "url(#ohlcClip)");
+
+    ohlcSelection.append("g")
+            .attr("class", "candlestick")
+            .attr("clip-path", "url(#ohlcClip)");
+
+    ohlcSelection.append("g")
+            .attr("class", "indicator sma ma-0")
+            .attr("clip-path", "url(#ohlcClip)");
+
+    ohlcSelection.append("g")
+            .attr("class", "indicator sma ma-1")
+            .attr("clip-path", "url(#ohlcClip)");
+
+    ohlcSelection.append("g")
+            .attr("class", "indicator ema ma-2")
+            .attr("clip-path", "url(#ohlcClip)");
+
+    ohlcSelection.append("g")
             .attr("class", "percent axis");
 
-    svg.append("g")
+    ohlcSelection.append("g")
             .attr("class", "volume axis");
+
+    svg.call(indicator, "macd", x, indicatorTop(0));
+    svg.call(indicator, "rsi", x, indicatorTop(1));
 
     svg.append("rect")
             .attr("class", "pane")
-            .attr("width", width)
-            .attr("height", height)
+            .attr("width", dim.plot.width)
+            .attr("height", dim.plot.height)
             .call(zoom);
 
     d3.select("button").on("click", reset);
 
     d3.csv("data.csv", function(error, data) {
-        var accessor = candlestick.accessor();
+        var accessor = candlestick.accessor(),
+            indicatorPreRoll = 33;  // Don't show where indicators don't have data
 
         data = data.map(function(d) {
             return {
@@ -223,23 +324,51 @@
             };
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        x.domain(techan.scale.plot.time(data, accessor).domain());
-        y.domain(techan.scale.plot.ohlc(data, accessor).domain());
-        yPercent.domain(techan.scale.plot.percent(y, accessor(data[0])).domain());
-        yVolume.domain(techan.scale.plot.volume(data, accessor.v).domain());
+        x.domain(techan.scale.plot.time(data).domain());
+        y.domain(techan.scale.plot.ohlc(data.slice(indicatorPreRoll)).domain());
+        yPercent.domain(techan.scale.plot.percent(y, accessor(data[indicatorPreRoll])).domain());
+        yVolume.domain(techan.scale.plot.volume(data).domain());
+
+        var macdData = techan.indicator.macd()(data);
+        macdScale.domain(techan.scale.plot.macd(macdData).domain());
+        var rsiData = techan.indicator.rsi()(data);
+        rsiScale.domain(techan.scale.plot.rsi(rsiData).domain());
 
         svg.select("g.candlestick").data([data]).call(candlestick);
         svg.select("g.volume").data([data]).call(volume);
         svg.select("g.sma.ma-0").data([techan.indicator.sma().period(10)(data)]).call(sma0);
         svg.select("g.sma.ma-1").data([techan.indicator.sma().period(20)(data)]).call(sma1);
         svg.select("g.ema.ma-2").data([techan.indicator.ema().period(50)(data)]).call(ema2);
+        svg.select("g.macd .indicator").data([macdData]).call(macd);
+        svg.select("g.rsi .indicator").data([rsiData]).call(rsi);
+
+        var zoomable = x.zoomable();
+        zoomable.domain([indicatorPreRoll, data.length]); // Zoom in a little to hide indicator preroll
 
         draw();
 
         // Associate the zoom with the scale after a domain has been applied
-        zoom.x(x.zoomable()).y(y);
+        zoom.x(zoomable).y(y);
         zoomPercent.y(yPercent);
     });
+
+    function indicator(selection, clazz, x, top) {
+        var indicatorSelection = selection.append("g")
+                .attr("class", clazz)
+                .attr("transform", "translate(0," + top + ")");
+
+        indicatorSelection.append("g")
+                .attr("class", "axis right")
+                .attr("transform", "translate(" + x(1) + ",0)");
+
+        indicatorSelection.append("g")
+                .attr("class", "axis left")
+                .attr("transform", "translate(" + x(0) + ",0)");
+
+        indicatorSelection.append("g")
+                .attr("class", "indicator")
+                .attr("clip-path", "url(#indicatorClip)");
+    }
 
     function reset() {
         zoom.scale(1);
@@ -252,16 +381,22 @@
         zoomPercent.scale(zoom.scale());
 
         svg.select("g.x.axis").call(xAxis);
-        svg.select("g.y.axis").call(yAxis);
+        svg.select("g.ohlc .axis").call(yAxis);
         svg.select("g.volume.axis").call(volumeAxis);
         svg.select("g.percent.axis").call(percentAxis);
+        svg.select("g.macd .axis.right").call(macdAxis);
+        svg.select("g.rsi .axis.right").call(rsiAxis);
+        svg.select("g.macd .axis.left").call(macdAxisLeft);
+        svg.select("g.rsi .axis.left").call(rsiAxisLeft);
 
         // We know the data does not change, a simple refresh that does not perform data joins will suffice.
         svg.select("g.candlestick").call(candlestick.refresh);
         svg.select("g.volume").call(volume.refresh);
-        svg.select("g.sma.ma-0").call(sma0.refresh);
-        svg.select("g.sma.ma-1").call(sma1.refresh);
-        svg.select("g.ema.ma-2").call(ema2.refresh);
+        svg.select("g .sma.ma-0").call(sma0.refresh);
+        svg.select("g .sma.ma-1").call(sma1.refresh);
+        svg.select("g .ema.ma-2").call(ema2.refresh);
+        svg.select("g.macd .indicator").call(macd.refresh);
+        svg.select("g.rsi .indicator").call(rsi.refresh);
     }
 
 </script>

@@ -6,4 +6,5 @@ Plots rendering demo. A sample of what can be created with the available plot ty
     <li>Percentage axis</li>
     <li>Simple and Exponential Moving Averages</li>
     <li>Zooming</li>
+    <li>Indicator combinations</li>
 <p>
