@@ -182,13 +182,13 @@
 
     var percentAxis = d3.svg.axis()
             .scale(yPercent)
-            .orient("right")
+            .orient("left")
             .tickFormat(d3.format('+.1%'));
 
     var volumeAxis = d3.svg.axis()
             .scale(yVolume)
-            .orient("left")
-            .ticks(4)
+            .orient("right")
+            .ticks(3)
             .tickFormat(d3.format(",.3s"));
 
     var macdScale = d3.scale.linear()
@@ -251,7 +251,7 @@
 
     svg.append('text')
             .attr("class", "symbol")
-            .attr("x", 50)
+            .attr("x", 20)
             .text("Facebook, Inc. (FB)");
 
     svg.append("g")
