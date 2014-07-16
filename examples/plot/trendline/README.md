@@ -1,0 +1,1 @@
+Trendline rendering on a chart.
