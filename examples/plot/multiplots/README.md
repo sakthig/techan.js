@@ -1,1 +1,1 @@
-Demonstrating multiple independently rendered, smaller sized charts.
+Demonstrating multiple independently rendered, small sized charts.
