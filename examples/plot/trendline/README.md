@@ -1,1 +1,1 @@
-Trendline rendering on a chart.
+Interactive trendline rendering on a chart.

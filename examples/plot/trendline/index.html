@@ -40,6 +40,17 @@
         stroke-width: 1;
     }
 
+    .interaction path, .interaction circle {
+        pointer-events: all;
+    }
+
+    .interaction .body {
+        cursor: move;
+    }
+
+    .interaction .start, .interaction .end {
+        cursor: nwse-resize
+    }
 
 </style>
 <body>
@@ -112,7 +123,8 @@
         svg.append("g")
                 .data([trendlineData])
                 .attr("class", "trendlines")
-                .call(trendline);
+                .call(trendline)
+                .call(trendline.drag);
 
         svg.append("g")
                 .attr("class", "x axis")
