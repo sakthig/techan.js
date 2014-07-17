@@ -1,1 +1,1 @@
-Support and resistance line rendering on a chart.
+Interactive support and resistance line rendering on a chart.
