@@ -49,7 +49,6 @@
     }
 
     rect.pane {
-        cursor: move;
         fill: none;
         pointer-events: all;
     }
@@ -108,6 +107,32 @@
     path.middle, path.zero {
         stroke: #BBBBBB;
         stroke-dasharray: 5, 5;
+    }
+
+    .analysis path {
+        stroke: blue;
+        stroke-width: 1;
+    }
+
+    .interaction path, .interaction circle {
+        pointer-events: all;
+    }
+
+    .interaction .body {
+        cursor: move;
+    }
+
+    .trendlines .interaction .start, .trendlines .interaction .end {
+        cursor: nwse-resize
+    }
+
+    path.supstance {
+        stroke-dasharray: 2, 2;
+    }
+
+    .supstances .interaction path {
+        pointer-events: all;
+        cursor: ns-resize;
     }
 
 </style>
@@ -171,6 +196,14 @@
             .accessor(candlestick.accessor())   // Set the accessor to a ohlc accessor so we get highlighted bars
             .xScale(x)
             .yScale(yVolume);
+
+    var trendline = techan.plot.trendline()
+            .xScale(x)
+            .yScale(y);
+
+    var supstance = techan.plot.supstance()
+            .xScale(x)
+            .yScale(y);
 
     var xAxis = d3.svg.axis()
             .scale(x)
@@ -307,6 +340,14 @@
             .attr("height", dim.plot.height)
             .call(zoom);
 
+    // Add trendlines and other interactions last to be above zoom pane
+    svg.append("g")
+            .attr("class", "trendlines analysis")
+            .attr("clip-path", "url(#ohlcClip)");
+    svg.append("g")
+            .attr("class", "supstances analysis")
+            .attr("clip-path", "url(#ohlcClip)");
+
     d3.select("button").on("click", reset);
 
     d3.csv("data.csv", function(error, data) {
@@ -329,6 +370,16 @@
         yPercent.domain(techan.scale.plot.percent(y, accessor(data[indicatorPreRoll])).domain());
         yVolume.domain(techan.scale.plot.volume(data).domain());
 
+        var trendlineData = [
+            { start: { date: new Date(2014, 2, 11), value: 72.50 }, end: { date: new Date(2014, 5, 9), value: 63.34 } },
+            { start: { date: new Date(2013, 10, 21), value: 43 }, end: { date: new Date(2014, 2, 17), value: 70.50 } }
+        ];
+
+        var supstanceData = [
+            { start: new Date(2014, 2, 11), end: new Date(2014, 5, 9), value: 63.64 },
+            { start: new Date(2013, 10, 21), end: new Date(2014, 2, 17), value: 55.50 }
+        ];
+
         var macdData = techan.indicator.macd()(data);
         macdScale.domain(techan.scale.plot.macd(macdData).domain());
         var rsiData = techan.indicator.rsi()(data);
@@ -341,6 +392,10 @@
         svg.select("g.ema.ma-2").data([techan.indicator.ema().period(50)(data)]).call(ema2);
         svg.select("g.macd .indicator").data([macdData]).call(macd);
         svg.select("g.rsi .indicator").data([rsiData]).call(rsi);
+
+        svg.select("g.trendlines").data([trendlineData]).call(trendline).call(trendline.drag);
+        svg.select("g.supstances").data([supstanceData]).call(supstance).call(supstance.drag);
+
 
         var zoomable = x.zoomable();
         zoomable.domain([indicatorPreRoll, data.length]); // Zoom in a little to hide indicator preroll
@@ -397,6 +452,8 @@
         svg.select("g .ema.ma-2").call(ema2.refresh);
         svg.select("g.macd .indicator").call(macd.refresh);
         svg.select("g.rsi .indicator").call(rsi.refresh);
+        svg.select("g.trendlines").call(trendline.refresh);
+        svg.select("g.supstances").call(supstance.refresh);
     }
 
 </script>

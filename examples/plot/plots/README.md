@@ -7,4 +7,6 @@ Plots rendering demo. A sample of what can be created with the available plot ty
     <li>Simple and Exponential Moving Averages</li>
     <li>Zooming</li>
     <li>Indicator combinations</li>
+    <li>Interactive trendlines</li>
+    <li>Interactive support and resistance lines</li>
 <p>
