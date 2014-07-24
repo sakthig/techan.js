@@ -95,7 +95,7 @@
         y.domain(techan.scale.plot.macd(macdData, accessor).domain());
 
         svg.append("g")
-                .data([macdData])
+                .datum(macdData)
                 .attr("class", "macd")
                 .call(macd);
 
