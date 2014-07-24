@@ -128,7 +128,7 @@
         x.domain(data.map(accessor.d));
         y.domain(techan.scale.plot.ohlc(data, accessor).domain());
 
-        svg.select("g.candlestick").data([data]);
+        svg.select("g.candlestick").datum(data);
         draw();
 
         // Associate the zoom with the scale after a domain has been applied
