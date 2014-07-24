@@ -84,7 +84,7 @@
         y.domain(techan.scale.plot.volume(data, accessor.v).domain());
 
         svg.append("g")
-                .data([data])
+                .datum(data)
                 .attr("class", "volume")
                 .call(volume);
 
