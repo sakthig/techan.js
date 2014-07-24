@@ -49,7 +49,7 @@
     }
 
     .interaction .start, .interaction .end {
-        cursor: nwse-resize
+        cursor: nwse-resize;
     }
 
 </style>
@@ -116,12 +116,12 @@
         y.domain(techan.scale.plot.ohlc(data, accessor).domain());
 
         svg.append("g")
-                .data([data])
+                .datum(data)
                 .attr("class", "candlestick")
                 .call(candlestick);
 
         svg.append("g")
-                .data([trendlineData])
+                .datum(trendlineData)
                 .attr("class", "trendlines")
                 .call(trendline)
                 .call(trendline.drag);
