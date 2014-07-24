@@ -230,11 +230,11 @@
             yPercent.domain(techan.scale.plot.percent(y, accessor(data[indicatorPreRoll])).domain());
             yVolume.domain(techan.scale.plot.volume(data, accessor.v).domain());
 
-            svg.select("g.candlestick").data([data]).call(candlestick);
-            svg.select("g.volume").data([data]).call(volume);
-            svg.select("g.sma.ma-0").data([techan.indicator.sma().period(10)(data)]).call(sma0);
-            svg.select("g.sma.ma-1").data([techan.indicator.sma().period(20)(data)]).call(sma1);
-            svg.select("g.ema.ma-2").data([techan.indicator.ema().period(50)(data)]).call(ema2);
+            svg.select("g.candlestick").datum(data).call(candlestick);
+            svg.select("g.volume").datum(data).call(volume);
+            svg.select("g.sma.ma-0").datum(techan.indicator.sma().period(10)(data)).call(sma0);
+            svg.select("g.sma.ma-1").datum(techan.indicator.sma().period(20)(data)).call(sma1);
+            svg.select("g.ema.ma-2").datum(techan.indicator.ema().period(50)(data)).call(ema2);
 
             var zoomable = x.zoomable();
             zoomable.domain([indicatorPreRoll, data.length]); // Zoom in a little to hide indicator preroll
