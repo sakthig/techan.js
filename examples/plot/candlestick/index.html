@@ -90,7 +90,7 @@
         y.domain(techan.scale.plot.ohlc(data, accessor).domain());
 
         svg.append("g")
-                .data([data])
+                .datum(data)
                 .attr("class", "candlestick")
                 .call(candlestick);
 
