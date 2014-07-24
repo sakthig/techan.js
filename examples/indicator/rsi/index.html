@@ -90,7 +90,7 @@
         y.domain(techan.scale.plot.rsi(rsiData, accessor).domain());
 
         svg.append("g")
-                .data([rsiData])
+                .datum(rsiData)
                 .attr("class", "rsi")
                 .call(rsi);
 
