@@ -150,24 +150,24 @@
 
         svg.append("g")
                 .attr("class", "y annotation left")
-                .datum([67.5, 58, 40])
+                .datum([{value:67.5}, {value:58}, {value:40}])
                 .call(ohlcAnnotation);
 
         svg.append("g")
                 .attr("class", "x annotation bottom")
                 .attr("transform", "translate(0," + height + ")")
-                .datum([x.domain()[30]])
+                .datum([{value:x.domain()[30]}])
                 .call(timeAnnotation);
 
         svg.append("g")
                 .attr("class", "y annotation right")
                 .attr("transform", "translate(" + width + ",0)")
-                .datum([61, 52])
+                .datum([{value:61}, {value:52}])
                 .call(ohlcRightAnnotation);
 
         svg.append("g")
                 .attr("class", "x annotation top")
-                .datum([x.domain()[80]])
+                .datum([{value:x.domain()[80]}])
                 .call(timeTopAnnotation);
     });
 
