@@ -9,4 +9,5 @@ Plots rendering demo. A sample of what can be created with the available plot ty
     <li>Indicator combinations</li>
     <li>Interactive trendlines</li>
     <li>Interactive support and resistance lines</li>
+    <li>Crosshairs with following axis annotations for all axis</li>
 <p>
