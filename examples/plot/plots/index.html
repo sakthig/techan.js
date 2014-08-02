@@ -522,7 +522,7 @@
 
         // We know the data does not change, a simple refresh that does not perform data joins will suffice.
         svg.select("g.candlestick").call(candlestick.refresh);
-        svg.select("g.close.annotation").call(closeAnnotation);
+        svg.select("g.close.annotation").call(closeAnnotation.refresh);
         svg.select("g.volume").call(volume.refresh);
         svg.select("g .sma.ma-0").call(sma0.refresh);
         svg.select("g .sma.ma-1").call(sma1.refresh);
