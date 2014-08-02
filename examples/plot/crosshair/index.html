@@ -168,7 +168,7 @@
 
         svg.append("g")
                 .attr("class", "y annotation left")
-                .datum([{value: 67.5}, {value: 58}, {value:40}])
+                .datum([{value: 74}, {value: 67.5}, {value: 58}, {value:40}]) // 74 should not be rendered
                 .call(ohlcAnnotation);
 
         svg.append("g")
