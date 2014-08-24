@@ -1,1 +1,1 @@
-Demonstrating the difference between zooming techan time scale (top) and d3 time scale (bottom). D3's time scale is continuous and linear, techan.scale.financetime plots only points available in the data's date domain without the linear (weekend, market holiday) gaps.
+Demonstrating the difference between zooming techan time scale (top) and d3 time scale (bottom). D3's time scale is continuous and linear, <code>techan.scale.financetime</code> plots only points available in the data's date domain without linear (weekend, market holiday) gaps.
