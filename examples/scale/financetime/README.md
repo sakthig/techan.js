@@ -1,1 +1,1 @@
-Demonstrating the difference between zooming techan time scale and d3 time scale.
+Demonstrating the difference between zooming techan time scale (top) and d3 time scale (bottom). D3's time scale is continuous and linear, techan plots only points within the data's date domain without (weekend, market holiday) gaps.
