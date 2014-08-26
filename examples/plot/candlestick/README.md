@@ -1,1 +1,1 @@
-Candlestick rendering demo. Demonstrates candle rendering, up and down day coloring and volume sensitive opacity.
+Candlestick rendering demo. Demonstrates candle rendering and up and down day coloring.
