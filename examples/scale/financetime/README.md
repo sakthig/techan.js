@@ -1,1 +1,2 @@
-Demonstrating the difference between zooming techan time scale and d3 time scale.
+<p>Demonstrating the difference between zooming techan time scale and d3 time scale for both daily and intraday data.</p>
+<p><strong>Note:</strong> TechanJS finance time only plots the available domain, unlike D3.</p>
