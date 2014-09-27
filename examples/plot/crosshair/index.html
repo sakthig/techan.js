@@ -129,11 +129,6 @@
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    svg.append('text')
-            .attr("x", 5)
-            .attr("y", 15)
-            .text("Facebook, Inc. (FB)");
-
     var coordsText = svg.append('text')
             .style("text-anchor", "end")
             .attr("class", "coords")
@@ -203,6 +198,11 @@
         svg.append('g')
                 .attr("class", "crosshair")
                 .call(crosshair);
+
+        svg.append('text')
+                .attr("x", 5)
+                .attr("y", 15)
+                .text("Facebook, Inc. (FB)");
     });
 
     function enter() {
