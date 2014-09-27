@@ -118,13 +118,27 @@
 
     var crosshair = techan.plot.crosshair()
             .xAnnotation([timeAnnotation, timeTopAnnotation])
-            .yAnnotation([ohlcAnnotation, ohlcRightAnnotation]);
+            .yAnnotation([ohlcAnnotation, ohlcRightAnnotation])
+            .on("enter", enter)
+            .on("out", out)
+            .on("move", move);
 
     var svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    svg.append('text')
+            .attr("x", 5)
+            .attr("y", 15)
+            .text("Facebook, Inc. (FB)");
+
+    var coordsText = svg.append('text')
+            .style("text-anchor", "end")
+            .attr("class", "coords")
+            .attr("x", width - 5)
+            .attr("y", 15);
 
     d3.csv("data.csv", function(error, data) {
         var accessor = candlestick.accessor();
@@ -190,5 +204,19 @@
                 .attr("class", "crosshair")
                 .call(crosshair);
     });
+
+    function enter() {
+        coordsText.style("display", "inline")
+    }
+
+    function out() {
+        coordsText.style("display", "none")
+    }
+
+    function move(coords) {
+        coordsText.text(
+            timeAnnotation.format()(coords[0][0]) + ", " + ohlcAnnotation.format()(coords[1][0])
+        );
+    }
 
 </script>
