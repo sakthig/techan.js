@@ -92,7 +92,8 @@
             .format(d3.format(',.2fs'));
 
     var ohlcRightAnnotation = techan.plot.axisannotation()
-            .axis(yRightAxis);
+            .axis(yRightAxis)
+            .translate([width, 0]); // Translation can be optionally set here, or over the group
 
     var timeAnnotation = techan.plot.axisannotation()
             .axis(xAxis)
@@ -161,7 +162,6 @@
 
         svg.append("g")
                 .attr("class", "y annotation right")
-                .attr("transform", "translate(" + width + ",0)")
                 .datum([{value:61}, {value:52}])
                 .call(ohlcRightAnnotation);
 
