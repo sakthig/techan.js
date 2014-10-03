@@ -35,10 +35,18 @@
         stroke: #FF0000;
     }
 
-    path.supstance {
+    .supstance path {
         stroke: blue;
-        stroke-width: 1;
+        stroke-width: 0.8;
         stroke-dasharray: 2, 2;
+    }
+
+    .mouseover .supstance path {
+        stroke-width: 1.5;
+    }
+
+    .dragging .supstance path {
+        stroke: darkblue;
     }
 
     .interaction path {
@@ -58,7 +66,8 @@
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
-    var parseDate = d3.time.format("%d-%b-%y").parse;
+    var parseDate = d3.time.format("%d-%b-%y").parse,
+        valueFormat = d3.format(',.2fs');
 
     var x = techan.scale.financetime()
             .range([0, width]);
@@ -73,7 +82,10 @@
 
     var supstance = techan.plot.supstance()
             .xScale(x)
-            .yScale(y);
+            .yScale(y)
+            .on("mouseenter", enter)
+            .on("mouseout", out)
+            .on("drag", drag);
 
     var xAxis = d3.svg.axis()
             .scale(x)
@@ -88,6 +100,12 @@
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var valueText = svg.append('text')
+            .style("text-anchor", "end")
+            .attr("class", "coords")
+            .attr("x", width - 5)
+            .attr("y", 15);
 
     d3.csv("data.csv", function(error, data) {
         var accessor = candlestick.accessor();
@@ -137,5 +155,22 @@
                 .style("text-anchor", "end")
                 .text("Price ($)");
     });
+
+    function enter(d) {
+        valueText.style("display", "inline");
+        refreshText(d);
+    }
+
+    function out() {
+        valueText.style("display", "none");
+    }
+
+    function drag(d) {
+        refreshText(d);
+    }
+
+    function refreshText(d) {
+        valueText.text("Value: " + valueFormat(d.value));
+    }
 
 </script>
