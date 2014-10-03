@@ -43,6 +43,19 @@
         fill: #EEEEEE;
     }
 
+    .crosshair {
+        cursor: crosshair;
+    }
+
+    .crosshair path.wire {
+        stroke: #DDDDDD;
+        stroke-dasharray: 1, 1;
+    }
+
+    .crosshair .axisannotation path {
+        fill: #DDDDDD;
+    }
+
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -101,6 +114,24 @@
             .ticks(3)
             .tickFormat(d3.format(",.3s"));
 
+    var timeAnnotation = techan.plot.axisannotation()
+            .axis(xAxis)
+            .format(d3.time.format('%Y-%m-%d'))
+            .width(65)
+            .translate([0, height]);
+
+    var ohlcAnnotation = techan.plot.axisannotation()
+            .axis(yAxis)
+            .format(d3.format(',.2fs'));
+
+    var volumeAnnotation = techan.plot.axisannotation()
+            .axis(volumeAxis)
+            .width(35);
+
+    var crosshair = techan.plot.crosshair()
+            .xAnnotation(timeAnnotation)
+            .yAnnotation([ohlcAnnotation, volumeAnnotation]);
+
     var svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom);
@@ -153,6 +184,9 @@
 
     svg.append("g")
             .attr("class", "volume axis");
+
+    svg.append('g')
+            .attr("class", "crosshair ohlc");
 
     var data, feed;
 
@@ -210,6 +244,8 @@
         refreshIndicator(svg.select("g.sma.ma-1"), sma1, sma1Calculator(data));
 
         svg.select("g.volume").call(volume);
+
+        svg.select("g.crosshair.ohlc").call(crosshair);
 
         // Set next timer expiry
         setTimeout(function() {
