@@ -35,9 +35,27 @@
         stroke: #FF0000;
     }
 
-    path.trendline {
+    .trendline {
         stroke: blue;
+        stroke-width: 0.8;
+    }
+
+    .trendline circle {
+        stroke-width: 0;
+        display: none;
+    }
+
+    .mouseover .trendline path {
         stroke-width: 1;
+    }
+
+    .mouseover .trendline circle {
+        stroke-width: 1;
+        display: inline;
+    }
+
+    .dragging .trendline {
+        stroke: darkblue;
     }
 
     .interaction path, .interaction circle {
@@ -62,7 +80,9 @@
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
-    var parseDate = d3.time.format("%d-%b-%y").parse;
+    var parseDate = d3.time.format("%d-%b-%y").parse,
+        timeFormat = d3.time.format('%Y-%m-%d'),
+        valueFormat = d3.format(',.2fs');
 
     var x = techan.scale.financetime()
             .range([0, width]);
@@ -77,7 +97,10 @@
 
     var trendline = techan.plot.trendline()
             .xScale(x)
-            .yScale(y);
+            .yScale(y)
+            .on("mouseenter", enter)
+            .on("mouseout", out)
+            .on("drag", drag);
 
     var xAxis = d3.svg.axis()
             .scale(x)
@@ -92,6 +115,12 @@
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var valueText = svg.append('text')
+            .style("text-anchor", "end")
+            .attr("class", "coords")
+            .attr("x", width - 5)
+            .attr("y", 15);
 
     d3.csv("data.csv", function(error, data) {
         var accessor = candlestick.accessor();
@@ -141,5 +170,25 @@
                 .style("text-anchor", "end")
                 .text("Price ($)");
     });
+
+    function enter(d) {
+        valueText.style("display", "inline");
+        refreshText(d);
+    }
+
+    function out(d) {
+        valueText.style("display", "none");
+    }
+
+    function drag(d) {
+        refreshText(d);
+    }
+
+    function refreshText(d) {
+        valueText.text(
+            "Start: [" + timeFormat(d.start.date) + ", " + valueFormat(d.start.value) +
+            "] End: [" + timeFormat(d.end.date) + ", " + valueFormat(d.end.value) + "]"
+        );
+    }
 
 </script>
