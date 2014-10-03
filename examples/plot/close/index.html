@@ -32,7 +32,8 @@
     var parseDate = d3.time.format("%d-%b-%y").parse;
 
     var x = techan.scale.financetime()
-            .range([0, width]);
+            .range([0, width])
+            .outerPadding(0);
 
     var y = d3.scale.linear()
             .range([height, 0]);
