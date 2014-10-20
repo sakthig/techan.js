@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    body {
+        font: 10px sans-serif;
+    }
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .stochastic path {
+        fill: none;
+        stroke-width: 1;
+    }
+    
+    .stochastic.up {
+        stroke: #00AA00;
+    }
+
+    .stochastic.down {
+        stroke: #FF0000;
+    }
+
+    .stochastic path.overbought, .stochastic path.oversold {
+        stroke: #FF9999;
+        stroke-dasharray: 5, 5;
+    }
+
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="techan.js"></script>
+<script>
+
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+    var parseDate = d3.time.format("%d-%b-%y").parse;
+
+    var x = techan.scale.financetime()
+            .range([0, width]);
+
+    var y = d3.scale.linear()
+            .range([height, 0]);
+
+    var stochastic = techan.plot.stochastic()
+            .xScale(x)
+            .yScale(y);
+
+    var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left")
+            .tickFormat(d3.format(",.3s"));
+
+    var svg = d3.select("body").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var stochasticPeriod = 23;
+
+    d3.csv("data.csv", function(error, data) {
+        var accessor = stochastic.accessor();
+
+        data = data.map(function(d) {
+            // Open, high, low, close generally not required, is being used here to demonstrate colored volume
+            // bars
+            return {
+                date: parseDate(d.Date),
+                volume: +d.Volume,
+                open: +d.Open,
+                high: +d.High,
+                low: +d.Low,
+                close: +d.Close
+            };
+        }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
+
+        var stochasticData = techan.indicator.stochastic()(data.slice(0, stochasticPeriod+200));
+        x.domain(stochasticData.map(accessor.d));
+        y.domain(techan.scale.plot.stochastic(stochasticData.slice(stochasticPeriod,stochasticPeriod+200), accessor).domain());
+
+        svg.append("g")
+                .datum(stochasticData)
+                .attr("class", "stochastic")
+                .call(stochastic);
+
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("stochastic");
+    });
+
+//    "chooseAction": function () {
+//        if (settings.stochastic.enable) {
+//            this.add();
+//        } else {
+//            this.remove();
+//        }
+//    },
+//    "add": function () {
+//        settings.stochastic.enable = true;
+//        setRangeY();
+//
+//
+//        yStochastic.domain(techan.scale.plot.stochastic(stochasticData).domain());
+//        stochasticAxis = $.coolGraph.gyroCreateAxis("stochastic", settings, x, yStochastic, stochasticSelection);
+//        if (typeof stochastic === "undefined") {
+//            stochastic = techan.plot.stochastic()
+//                    .xScale(x)
+//                    .yScale(yStochastic);
+//        }
+//        stochasticSelection.append("g")
+//                .attr("class", "stochastic plot")
+//        ;
+//        stochasticIndicator = techan.indicator.stochastic().period(settings.stochastic.periodK).periodD(settings.stochastic.periodD);
+//
+//
+//        this.redraw();
+//    },
+//    "remove": function () {
+//        svg.select("g.stochastic.plot").remove();
+//        if (stochasticAxis) {
+//            for (var i = 0; i < 4; i++) {
+//                var position = AxisPosition[i];
+//                if (typeof stochasticAxis[position] !== "undefined") {
+//                    stochasticAxis[position]['g'].remove();
+//                }
+//            }
+//        }
+//        settings.stochastic.enable = false;
+//    },
+//    "redraw": function () {
+//
+//        if (settings.stochastic.enable && typeof stochastic !== "undefined") {
+//
+//            var first_index = actualindex - settings.stochastic.periodK - settings.stochastic.periodD;
+//            if (first_index < 0) {
+//                first_index = 0;
+//            }
+//            stochasticData = stochasticIndicator(feed.slice(first_index, actualindex).concat(data));
+//
+//            for (var i = 0; i < 4; i++) {
+//                var position = AxisPosition[i];
+//                if (settings.stochastic.axis[position].enable) {
+//                    stochasticAxis[position]['g'].call(stochasticAxis[position]['f']);
+//                    $.coolGraph.gyroTicksTransformation("stochastic", position, stochasticAxis[position]['g'], settings);
+//                }
+//            }
+//
+//            svg.select("g.stochastic.plot").remove();
+//            stochasticSelection.append("g")
+//                    .attr("class", "stochastic plot")
+//                    .datum(stochasticData)
+//                    .call(stochastic)
+//            ;
+//        }
+//    }
+
+</script>
