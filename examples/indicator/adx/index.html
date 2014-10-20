@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+    body {
+        font: 10px sans-serif;
+    }
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .adx path {
+        fill: none;
+        stroke-width: 1;
+    }
+
+    .adx {
+        stroke: #000000;
+    }
+
+    .adx path.adx {
+        stroke: #000000;
+    }
+
+    .adx path.plusDi {
+        stroke: #00ff00;
+    }
+
+    .adx path.minusDi {
+        stroke: #ff0000;
+    }
+
+
+</style>
+<body>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="techan.js"></script>
+<script>
+
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+    var parseDate = d3.time.format("%d-%b-%y").parse;
+
+    var x = techan.scale.financetime()
+            .range([0, width]);
+
+    var y = d3.scale.linear()
+            .range([height, 0]);
+
+    var adx = techan.plot.adx()
+            .xScale(x)
+            .yScale(y);
+
+    var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left")
+            .tickFormat(d3.format(",.3s"));
+
+    var svg = d3.select("body").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var adxPeriod = 23;
+
+    d3.csv("data.csv", function(error, data) {
+        var accessor = adx.accessor();
+
+        data = data.map(function(d) {
+            // Open, high, low, close generally not required, is being used here to demonstrate colored volume
+            // bars
+            return {
+                date: parseDate(d.Date),
+                volume: +d.Volume,
+                open: +d.Open,
+                high: +d.High,
+                low: +d.Low,
+                close: +d.Close
+            };
+        }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
+
+        var adxData = techan.indicator.adx()(data.slice(0, adxPeriod+200));
+        x.domain(adxData.map(accessor.d));
+        y.domain(techan.scale.plot.adx(adxData.slice(adxPeriod,adxPeriod+200), accessor).domain());
+
+        svg.append("g")
+                .datum(adxData)
+                .attr("class", "adx")
+                .call(adx);
+
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("adx");
+    });
+
+//    "chooseAction": function () {
+//        if (settings.adx.enable) {
+//            this.add();
+//        } else {
+//            this.remove();
+//        }
+//    },
+//    "add": function () {
+//        settings.adx.enable = true;
+//        setRangeY();
+//
+//
+//        yadx.domain(techan.scale.plot.adx(adxData).domain());
+//        adxAxis = $.coolGraph.gyroCreateAxis("adx", settings, x, yadx, adxSelection);
+//        if (typeof adx === "undefined") {
+//            adx = techan.plot.adx()
+//                    .xScale(x)
+//                    .yScale(yadx);
+//        }
+//        adxSelection.append("g")
+//                .attr("class", "adx plot")
+//        ;
+//        adxIndicator = techan.indicator.adx().period(settings.adx.periodK).periodD(settings.adx.periodD);
+//
+//
+//        this.redraw();
+//    },
+//    "remove": function () {
+//        svg.select("g.adx.plot").remove();
+//        if (adxAxis) {
+//            for (var i = 0; i < 4; i++) {
+//                var position = AxisPosition[i];
+//                if (typeof adxAxis[position] !== "undefined") {
+//                    adxAxis[position]['g'].remove();
+//                }
+//            }
+//        }
+//        settings.adx.enable = false;
+//    },
+//    "redraw": function () {
+//
+//        if (settings.adx.enable && typeof adx !== "undefined") {
+//
+//            var first_index = actualindex - settings.adx.periodK - settings.adx.periodD;
+//            if (first_index < 0) {
+//                first_index = 0;
+//            }
+//            adxData = adxIndicator(feed.slice(first_index, actualindex).concat(data));
+//
+//            for (var i = 0; i < 4; i++) {
+//                var position = AxisPosition[i];
+//                if (settings.adx.axis[position].enable) {
+//                    adxAxis[position]['g'].call(adxAxis[position]['f']);
+//                    $.coolGraph.gyroTicksTransformation("adx", position, adxAxis[position]['g'], settings);
+//                }
+//            }
+//
+//            svg.select("g.adx.plot").remove();
+//            adxSelection.append("g")
+//                    .attr("class", "adx plot")
+//                    .datum(adxData)
+//                    .call(adx)
+//            ;
+//        }
+//    }
+
+</script>
