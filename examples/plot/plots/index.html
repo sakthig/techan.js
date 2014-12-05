@@ -264,6 +264,7 @@
 
     var closeAnnotation = techan.plot.axisannotation()
             .axis(yAxis)
+            .accessor(candlestick.accessor())
             .format(d3.format(',.2fs'))
             .translate([x(1), 0]);
 
@@ -338,16 +339,22 @@
             .format(d3.format(',.2fs'));
 
     var ohlcCrosshair = techan.plot.crosshair()
+            .xScale(timeAnnotation.axis().scale())
+            .yScale(ohlcAnnotation.axis().scale())
             .xAnnotation(timeAnnotation)
             .yAnnotation([ohlcAnnotation, percentAnnotation, volumeAnnotation])
             .verticalWireRange([0, dim.plot.height]);
 
     var macdCrosshair = techan.plot.crosshair()
+            .xScale(timeAnnotation.axis().scale())
+            .yScale(macdAnnotation.axis().scale())
             .xAnnotation(timeAnnotation)
             .yAnnotation([macdAnnotation, macdAnnotationLeft])
             .verticalWireRange([0, dim.plot.height]);
 
     var rsiCrosshair = techan.plot.crosshair()
+            .xScale(timeAnnotation.axis().scale())
+            .yScale(rsiAnnotation.axis().scale())
             .xAnnotation(timeAnnotation)
             .yAnnotation([rsiAnnotation, rsiAnnotationLeft])
             .verticalWireRange([0, dim.plot.height]);
@@ -502,7 +509,7 @@
         rsiScale.domain(techan.scale.plot.rsi(rsiData).domain());
 
         svg.select("g.candlestick").datum(data).call(candlestick);
-        svg.select("g.close.annotation").datum([{value:data[data.length-1].close}]).call(closeAnnotation);
+        svg.select("g.close.annotation").datum([data[data.length-1]]).call(closeAnnotation);
         svg.select("g.volume").datum(data).call(volume);
         svg.select("g.sma.ma-0").datum(techan.indicator.sma().period(10)(data)).call(sma0);
         svg.select("g.sma.ma-1").datum(techan.indicator.sma().period(20)(data)).call(sma1);
