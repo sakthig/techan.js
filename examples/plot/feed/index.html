@@ -129,6 +129,8 @@
             .width(35);
 
     var crosshair = techan.plot.crosshair()
+            .xScale(x)
+            .yScale(y)
             .xAnnotation(timeAnnotation)
             .yAnnotation([ohlcAnnotation, volumeAnnotation]);
 
