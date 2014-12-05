@@ -117,6 +117,8 @@
             .axis(xTopAxis);
 
     var crosshair = techan.plot.crosshair()
+            .xScale(x)
+            .yScale(y)
             .xAnnotation([timeAnnotation, timeTopAnnotation])
             .yAnnotation([ohlcAnnotation, ohlcRightAnnotation])
             .on("enter", enter)
