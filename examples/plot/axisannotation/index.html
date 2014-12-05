@@ -89,18 +89,22 @@
 
     var ohlcAnnotation = techan.plot.axisannotation()
             .axis(yAxis)
+            .accessor(candlestick.accessor())
             .format(d3.format(',.2fs'));
 
     var ohlcRightAnnotation = techan.plot.axisannotation()
             .axis(yRightAxis)
+            .accessor(candlestick.accessor())
             .translate([width, 0]); // Translation can be optionally set here, or over the group
 
     var timeAnnotation = techan.plot.axisannotation()
             .axis(xAxis)
+            .accessor(candlestick.accessor().d)
             .format(d3.time.format('%Y-%m-%d'))
             .width(65);
 
     var timeTopAnnotation = techan.plot.axisannotation()
+            .accessor(candlestick.accessor().d)
             .axis(xTopAxis);
 
     var svg = d3.select("body").append("svg")
@@ -151,23 +155,23 @@
 
         svg.append("g")
                 .attr("class", "y annotation left")
-                .datum([{value:67.5}, {value:58}, {value:40}])
+                .datum([data[130], data[100], data[0]])
                 .call(ohlcAnnotation);
 
         svg.append("g")
                 .attr("class", "x annotation bottom")
                 .attr("transform", "translate(0," + height + ")")
-                .datum([{value:x.domain()[30]}])
+                .datum([data[30]])
                 .call(timeAnnotation);
 
         svg.append("g")
                 .attr("class", "y annotation right")
-                .datum([{value:61}, {value:52}])
+                .datum([data[188], data[80]])
                 .call(ohlcRightAnnotation);
 
         svg.append("g")
                 .attr("class", "x annotation top")
-                .datum([{value:x.domain()[80]}])
+                .datum([data[80]])
                 .call(timeTopAnnotation);
     });
 
