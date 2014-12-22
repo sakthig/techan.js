@@ -128,7 +128,8 @@
 
     d3.csv("data.csv", function(error, data) {
         var accessor = candlestick.accessor(),
-                       indicatorPreRoll = 78;  // Don't show where indicators don't have data
+            ichimokuIndicator = techan.indicator.ichimoku(),
+            indicatorPreRoll = ichimokuIndicator.kijunSen()+ichimokuIndicator.senkouSpanB();  // Don't show where indicators don't have data
 
         data = data.map(function(d) {
             // Open, high, low, close generally not required, is being used here to demonstrate colored volume
@@ -143,14 +144,14 @@
             };
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        var ichimokuIndicator = techan.indicator.ichimoku(),
-            ichimokuData = ichimokuIndicator(data);
+        var ichimokuData = ichimokuIndicator(data);
         x.domain(data.map(accessor.d));
         // Calculate the y domain for visible data points (ensure to include Kijun Sen additional data offset)
         y.domain(techan.scale.plot.ichimoku(ichimokuData.slice(indicatorPreRoll-ichimokuIndicator.kijunSen())).domain());
 
+        // Logic to ensure that at least +KijunSen displacement is applied to display cloud plotted ahead of ohlc
         var zoomable = x.zoomable().clamp(false);
-        zoomable.domain([indicatorPreRoll, data.length+30]);
+        zoomable.domain([indicatorPreRoll, data.length+ichimokuIndicator.kijunSen()]);
 
         svg.append("g")
                 .datum(ichimokuData)
