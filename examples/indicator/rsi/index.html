@@ -86,8 +86,8 @@
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
         var rsiData = techan.indicator.rsi()(data);
-        x.domain(data.map(accessor.d));
-        y.domain(techan.scale.plot.rsi(rsiData, accessor).domain());
+        x.domain(rsiData.map(accessor.d));
+        y.domain(techan.scale.plot.rsi(rsiData).domain());
 
         svg.append("g")
                 .datum(rsiData)
