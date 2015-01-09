@@ -21,10 +21,6 @@
         stroke-width: 0;
     }
 
-    path.candle.wick {
-        stroke-width: 1;
-    }
-
     path.candle.up {
         fill: #00AA00;
         stroke: #00AA00;
@@ -33,6 +29,23 @@
     path.candle.down {
         fill: #FF0000;
         stroke: #FF0000;
+    }
+
+    path.ohlc {
+        stroke: #000000;
+        stroke-width: 1;
+    }
+
+    path.ohlc.up {
+        stroke: #00AA00;
+    }
+
+    path.ohlc.down {
+        stroke: #FF0000;
+    }
+
+    path.volume {
+        fill: #EEEEEE;
     }
 
     path.line {
@@ -70,6 +83,9 @@
     var y = d3.scale.linear()
             .range([height, 0]);
 
+    var yVolume = d3.scale.linear()
+            .range([y(0), y(0.3)]);
+
     var y2 = d3.scale.linear()
             .range([height2, 0]);
 
@@ -79,6 +95,10 @@
     var candlestick = techan.plot.candlestick()
             .xScale(x)
             .yScale(y);
+
+    var volume = techan.plot.volume()
+            .xScale(x)
+            .yScale(yVolume);
 
     var close = techan.plot.close()
             .xScale(x2)
@@ -116,6 +136,10 @@
             .attr("y", y(1))
             .attr("width", width)
             .attr("height", y(0) - y(1));
+
+    focus.append("g")
+            .attr("class", "volume")
+            .attr("clip-path", "url(#clip)");
 
     focus.append("g")
             .attr("class", "candlestick")
@@ -173,8 +197,10 @@
         x2.domain(x.domain());
         y.domain(techan.scale.plot.ohlc(data, accessor).domain());
         y2.domain(y.domain());
+        yVolume.domain(techan.scale.plot.volume(data).domain());
 
         focus.select("g.candlestick").datum(data);
+        focus.select("g.volume").datum(data);
 
         context.select("g.close").datum(data).call(close);
         context.select("g.x.axis").call(xAxis2);
@@ -196,6 +222,7 @@
         zoomable.domain(brush.empty() ? zoomable2.domain() : brush.extent());
         y.domain(techan.scale.plot.ohlc(data.slice(zoomable.domain()[0], zoomable.domain()[1]), candlestick.accessor()).domain());
         candlestickSelection.call(candlestick);
+        focus.select("g.volume").call(volume);
         // using refresh method is more efficient as it does not perform any data joins
         // Use this if underlying data is not changing
 //        svg.select("g.candlestick").call(candlestick.refresh);
