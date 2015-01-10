@@ -206,7 +206,7 @@
         context.select("g.x.axis").call(xAxis2);
 
         // Associate the brush with the scale and render the brush only AFTER a domain has been applied
-        zoomable = x.zoomable(); // FIXME Don't need this snapshot when zoomable is implemented correctly...
+        zoomable = x.zoomable();
         zoomable2 = x2.zoomable();
         brush.x(zoomable2);
         context.select("g.pane").call(brush).selectAll("rect").attr("height", height2);
@@ -220,7 +220,7 @@
         var candlestickSelection = focus.select("g.candlestick"),
             data = candlestickSelection.datum();
         zoomable.domain(brush.empty() ? zoomable2.domain() : brush.extent());
-        y.domain(techan.scale.plot.ohlc(data.slice(zoomable.domain()[0], zoomable.domain()[1]), candlestick.accessor()).domain());
+        y.domain(techan.scale.plot.ohlc(data.slice.apply(data, zoomable.domain()), candlestick.accessor()).domain());
         candlestickSelection.call(candlestick);
         focus.select("g.volume").call(volume);
         // using refresh method is more efficient as it does not perform any data joins
