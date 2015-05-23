@@ -59,6 +59,19 @@
         fill-opacity: .125;
         shape-rendering: crispEdges;
     }
+
+    .crosshair {
+        cursor: crosshair;
+    }
+
+    .crosshair path.wire {
+        stroke: #DDDDDD;
+        stroke-dasharray: 1, 1;
+    }
+
+    .crosshair .axisannotation path {
+        fill: #DDDDDD;
+    }
     
 </style>
 <body>
@@ -121,6 +134,22 @@
             .ticks(0)
             .orient("left");
 
+    var ohlcAnnotation = techan.plot.axisannotation()
+            .axis(yAxis)
+            .format(d3.format(',.2fs'));
+
+    var timeAnnotation = techan.plot.axisannotation()
+            .axis(xAxis)
+            .format(d3.time.format('%Y-%m-%d'))
+            .width(65)
+            .translate([0, height]);
+
+    var crosshair = techan.plot.crosshair()
+            .xScale(x)
+            .yScale(y)
+            .xAnnotation(timeAnnotation)
+            .yAnnotation(ohlcAnnotation);
+
     var svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom);
@@ -157,6 +186,10 @@
             .attr("dy", ".71em")
             .style("text-anchor", "end")
             .text("Price ($)");
+
+    focus.append('g')
+            .attr("class", "crosshair")
+            .call(crosshair);
 
     var context = svg.append("g")
             .attr("class", "context")
