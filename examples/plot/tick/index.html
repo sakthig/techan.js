@@ -53,8 +53,8 @@
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
     
-    var margin = {top: 20, right: 20, bottom: 100, left: 50},
-        margin2 = {top: 420, right: 20, bottom: 20, left: 50},
+    var margin = {top: 20, right: 20, bottom: 100, left: 55},
+        margin2 = {top: 420, right: 20, bottom: 20, left: 55},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom,
         height2 = 500 - margin2.top - margin2.bottom;
@@ -116,8 +116,8 @@
 
     var timeAnnotation = techan.plot.axisannotation()
             .axis(xAxis)
-            .format(d3.time.format('%Y-%m-%dT%H:%M:%S.%L'))
-            .width(65)
+            .format(d3.time.format('%H:%M:%S.%L'))
+            .width(70)
             .translate([0, height]);
 
     var crosshair = techan.plot.crosshair()
