@@ -1,0 +1,1 @@
+Demonstrates rendering buy, sell trades as arrows with up and down coloring.
