@@ -18,15 +18,7 @@
         stroke-width: 1;
     }
 
-    path.tick.up {
-        stroke: green;
-    }
-
-    path.tick.down {
-        stroke: red;
-    }
-
-    path.spread {
+    path.volume {
         fill: #cccccc;
     }
 
@@ -60,7 +52,7 @@
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
-
+    
     var margin = {top: 20, right: 20, bottom: 100, left: 50},
         margin2 = {top: 420, right: 20, bottom: 20, left: 50},
         width = 960 - margin.left - margin.right,
@@ -91,10 +83,12 @@
             .xScale(x)
             .yScale(y);
 
+    // FIXME: change volume to spraed chart
     var volume = techan.plot.volume()
             .xScale(x)
             .yScale(yVolume);
 
+    // FIXME: change close to line chart
     var close = techan.plot.close()
             .xScale(x2)
             .yScale(y2);
@@ -193,7 +187,7 @@
 
     var zoomable, zoomable2;
     
-    d3.json("streaming-quotes-oanda-fxpractice-AUD_USD-20150918.json", function(error, json) {
+    d3.json("streaming-quotes-oanda-fxpractice-AUD_CAD-20150918.json", function(error, json) {
     	var accessor = tick.accessor();
     	data = json.slice(0, 3500).map(function(d, index, array){
     		return {
