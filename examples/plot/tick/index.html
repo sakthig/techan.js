@@ -193,7 +193,7 @@
 
     var zoomable, zoomable2;
     
-    d3.json("streaming-quotes-oanda-fxpractice-AUD_CAD-20150918.json", function(error, json) {
+    d3.json("streaming-quotes-oanda-fxpractice-AUD_USD-20150918.json", function(error, json) {
     	var accessor = tick.accessor();
     	data = json.slice(0, 3500).map(function(d, index, array){
     		return {
