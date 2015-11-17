@@ -169,6 +169,31 @@
         fill: #DDDDDD;
     }
 
+    .tradearrow path.tradearrow {
+        stroke: none;
+    }
+
+    .tradearrow path.buy {
+        fill: #0000FF;
+    }
+
+    .tradearrow path.sell {
+        fill: #9900FF;
+    }
+
+    .tradearrow path.highlight {
+        fill: none;
+        stroke-width: 2;
+    }
+
+    .tradearrow path.highlight.buy {
+        stroke: #0000FF;
+    }
+
+    .tradearrow path.highlight.sell {
+        stroke: #9900FF;
+    }
+
 </style>
 <body>
 <button>Reset</button>
@@ -213,6 +238,16 @@
     var candlestick = techan.plot.candlestick()
             .xScale(x)
             .yScale(y);
+
+    var tradearrow = techan.plot.tradearrow()
+            .xScale(x)
+            .yScale(y)
+            .y(function(d) {
+                // Display the buy and sell arrows a bit above and below the price, so the price is still visible
+                if(d.type === 'buy') return y(d.low)+5;
+                if(d.type === 'sell') return y(d.high)-5;
+                else return y(d.price);
+            });
 
     var sma0 = techan.plot.sma()
             .xScale(x)
@@ -454,6 +489,10 @@
     svg.append('g')
             .attr("class", "crosshair ohlc");
 
+    svg.append("g")
+            .attr("class", "tradearrow")
+            .attr("clip-path", "url(#ohlcClip)");
+
     svg.append('g')
             .attr("class", "crosshair macd");
 
@@ -499,6 +538,13 @@
             { start: new Date(2013, 10, 21), end: new Date(2014, 2, 17), value: 55.50 }
         ];
 
+        var trades = [
+            { date: data[67].date, type: "buy", price: data[67].low, low: data[67].low, high: data[67].high },
+            { date: data[100].date, type: "sell", price: data[100].high, low: data[100].low, high: data[100].high },
+            { date: data[130].date, type: "buy", price: data[130].low, low: data[130].low, high: data[130].high },
+            { date: data[170].date, type: "sell", price: data[170].low, low: data[170].low, high: data[170].high }
+        ];
+
         var macdData = techan.indicator.macd()(data);
         macdScale.domain(techan.scale.plot.macd(macdData).domain());
         var rsiData = techan.indicator.rsi()(data);
@@ -519,6 +565,7 @@
         svg.select("g.trendlines").datum(trendlineData).call(trendline).call(trendline.drag);
         svg.select("g.supstances").datum(supstanceData).call(supstance).call(supstance.drag);
 
+        svg.select("g.tradearrow").datum(trades).call(tradearrow);
 
         var zoomable = x.zoomable();
         zoomable.domain([indicatorPreRoll, data.length]); // Zoom in a little to hide indicator preroll
@@ -563,6 +610,7 @@
         svg.select("g.crosshair.rsi").call(rsiCrosshair.refresh);
         svg.select("g.trendlines").call(trendline.refresh);
         svg.select("g.supstances").call(supstance.refresh);
+        svg.select("g.tradearrow").call(tradearrow.refresh);
     }
 
 </script>
