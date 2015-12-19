@@ -63,7 +63,7 @@
     var xIntraday = d3.time.scale()
             .range([0, width]);
 
-    var xIntradayUtc = d3.time.scale()
+    var xIntradayUtc = d3.time.scale.utc()
             .range([0, width]);
 
     var techanTime = techan.scale.financetime()
@@ -257,7 +257,6 @@
         var accessor = techan.accessor.ohlc();
 
         data = data.map(function(d) {
-            console.log(d.Date, '->', parseIntradayDate(d.Date+"+0000"));
             return {
                 date: parseIntradayDate(d.Date+"+0000"), // Force 0 timezone offset. Time rendered should always be between 9pm-3am.
                 open: +d.Open,
