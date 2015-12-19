@@ -29,7 +29,7 @@
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
-    var parseDate = d3.time.format("%d-%b-%y").parse;
+    var parseDate = d3.time.format("%d-%b-%y%Z").parse;
 
     var parseIntradayDate = d3.time.format("%Y%m%d%H%M%Z").parse;
 
@@ -231,7 +231,7 @@
 
         data = data.map(function(d) {
             return {
-                date: parseDate(d.Date),
+                date: parseDate(d.Date+"+0000"),
                 open: +d.Open,
                 high: +d.High,
                 low: +d.Low,
