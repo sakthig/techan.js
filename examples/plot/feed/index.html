@@ -190,7 +190,7 @@
     svg.append('g')
             .attr("class", "crosshair ohlc");
 
-    var data, feed;
+    var feed;
 
     d3.csv("data.csv", function(error, csv) {
         var accessor = ohlc.accessor();
@@ -206,26 +206,11 @@
             };
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        // The removed becomes the initial data, the remaining becomes the feed
-        data = feed.splice(0, 163);
-
-        svg.select("g.candlestick").datum(data);
-        svg.select("g.sma.ma-0").datum(sma0Calculator(data));
-        svg.select("g.sma.ma-1").datum(sma1Calculator(data));
-        svg.select("g.volume").datum(data);
-
-        redraw();
+        // Start off an initial set of data
+        redraw(feed.slice(0, 163));
     });
 
-    function refreshIndicator(selection, indicator, data) {
-        var datum = selection.datum();
-        // Some trickery to remove old and insert new without changing array reference,
-        // so no need to update __data__ in the DOM
-        datum.splice.apply(datum, [0, datum.length].concat(data));
-        selection.call(indicator);
-    }
-
-    function redraw() {
+    function redraw(data) {
         var accessor = ohlc.accessor();
 
         x.domain(data.map(accessor.d));
@@ -236,33 +221,41 @@
         y.domain(techan.scale.plot.ohlc(data.slice(data.length-130, data.length)).domain());
         yVolume.domain(techan.scale.plot.volume(data.slice(data.length-130, data.length)).domain());
 
-        svg.select('g.x.axis').call(xAxis);
-        svg.select('g.y.axis').call(yAxis);
-        svg.select("g.volume.axis").call(volumeAxis);
+        // Setup a transition for all that support
+        svg
+//          .transition() // Disable transition for now, each is only for transitions
+            .each(function() {
+                var selection = d3.select(this);
+                selection.select('g.x.axis').call(xAxis);
+                selection.select('g.y.axis').call(yAxis);
+                selection.select("g.volume.axis").call(volumeAxis);
 
-        svg.select("g.candlestick").call(ohlc);
-        // Recalculate indicators and update the SAME array and redraw moving average
-        refreshIndicator(svg.select("g.sma.ma-0"), sma0, sma0Calculator(data));
-        refreshIndicator(svg.select("g.sma.ma-1"), sma1, sma1Calculator(data));
+                selection.select("g.candlestick").datum(data).call(ohlc);
+                selection.select("g.sma.ma-0").datum(sma0Calculator(data)).call(sma0);
+                selection.select("g.sma.ma-1").datum(sma1Calculator(data)).call(sma1);
+                selection.select("g.volume").datum(data).call(volume);
 
-        svg.select("g.volume").call(volume);
-
-        svg.select("g.crosshair.ohlc").call(crosshair);
+                svg.select("g.crosshair.ohlc").call(crosshair);
+            });
 
         // Set next timer expiry
         setTimeout(function() {
-            if(feed.length) {
+            var newData;
+
+            if(data.length < feed.length) {
                 // Simulate a daily feed
-                data.push(feed.shift());
+                newData = feed.slice(0, data.length+1);
             }
             else {
                 // Simulate intra day updates when no feed is left
                 var last = data[data.length-1];
                 // Last must be between high and low
                 last.close = Math.round(((last.high - last.low)*Math.random())*10)/10+last.low;
+
+                newData = data;
             }
 
-            redraw();
+            redraw(newData);
         }, (Math.random()*1000)+400); // Randomly pick an interval to update the chart
     }
 
