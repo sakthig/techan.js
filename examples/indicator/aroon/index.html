@@ -5,6 +5,7 @@
     body {
         font: 10px sans-serif;
     }
+
     .axis path,
     .axis line {
         fill: none;
@@ -53,7 +54,7 @@
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="techan.js"></script>
+<script src="http://techanjs.org/techan.min.js"></script>
 <script>
 
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -87,8 +88,6 @@
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var aroonPeriod = 14;
-
     d3.csv("data.csv", function(error, data) {
         var accessor = aroon.accessor();
 
@@ -105,9 +104,9 @@
             };
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        var aroonData = techan.indicator.aroon()(data.slice(0, aroonPeriod+200));
+        var aroonData = techan.indicator.aroon()(data);
         x.domain(aroonData.map(accessor.d));
-        y.domain(techan.scale.plot.aroon(aroonData.slice(aroonPeriod,aroonPeriod+200), accessor).domain());
+        y.domain(techan.scale.plot.aroon().domain());
 
         svg.append("g")
                 .datum(aroonData)
@@ -127,7 +126,7 @@
                 .attr("y", 6)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
-                .text("aroon");
+                .text("Aroon");
     });
 
 </script>
