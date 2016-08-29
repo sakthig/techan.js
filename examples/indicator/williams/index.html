@@ -5,6 +5,7 @@
     body {
         font: 10px sans-serif;
     }
+
     .axis path,
     .axis line {
         fill: none;
@@ -16,6 +17,7 @@
         fill: none;
         stroke-width: 1;
     }
+
     .williams.up {
         stroke: #006600;
         stroke-width: 1.5;
@@ -24,7 +26,7 @@
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="techan.js"></script>
+<script src="http://techanjs.org/techan.min.js"></script>
 <script>
 
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
@@ -58,8 +60,6 @@
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var williamsPeriod = 14;
-
     d3.csv("data.csv", function(error, data) {
         var accessor = williams.accessor();
 
@@ -76,9 +76,9 @@
             };
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        var williamsData = techan.indicator.williams()(data.slice(0, williamsPeriod+200));
+        var williamsData = techan.indicator.williams()(data);
         x.domain(williamsData.map(accessor.d));
-        y.domain(techan.scale.plot.williams(williamsData.slice(williamsPeriod,williamsPeriod+200), accessor).domain());
+        y.domain(techan.scale.plot.williams().domain());
 
         svg.append("g")
                 .datum(williamsData)
@@ -98,7 +98,7 @@
                 .attr("y", 6)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
-                .text("williams");
+                .text("William %R");
     });
 
 </script>
