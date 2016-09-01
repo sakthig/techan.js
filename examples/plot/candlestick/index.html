@@ -13,6 +13,13 @@
         shape-rendering: crispEdges;
     }
 
+    button {
+        position: absolute;
+        right: 60px;
+        top: 450px;
+        display: none;
+    }
+
     path.candle {
         stroke: #000000;
     }
@@ -33,6 +40,7 @@
 
 </style>
 <body>
+<button>Update</button>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
@@ -68,8 +76,7 @@
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     d3.csv("data.csv", function(error, data) {
-        var accessor = candlestick.accessor(),
-            timestart = Date.now();
+        var accessor = candlestick.accessor();
 
         data = data.slice(0, 200).map(function(d) {
             return {
@@ -82,22 +89,15 @@
             };
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        x.domain(data.map(accessor.d));
-        y.domain(techan.scale.plot.ohlc(data, accessor).domain());
-
         svg.append("g")
-                .datum(data)
-                .attr("class", "candlestick")
-                .call(candlestick);
+                .attr("class", "candlestick");
 
         svg.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
+                .attr("transform", "translate(0," + height + ")");
 
         svg.append("g")
                 .attr("class", "y axis")
-                .call(yAxis)
                 .append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 6)
@@ -105,7 +105,19 @@
                 .style("text-anchor", "end")
                 .text("Price ($)");
 
-        console.log("Render time: " + (Date.now()-timestart));
+        // Data to display initially
+        draw(data.slice(0, data.length-20));
+        // Only want this button to be active if the data has loaded
+        d3.select("button").on("click", function() { draw(data); }).style("display", "inline");
     });
+
+    function draw(data) {
+        x.domain(data.map(candlestick.accessor().d));
+        y.domain(techan.scale.plot.ohlc(data, candlestick.accessor()).domain());
+
+        svg.selectAll("g.candlestick").datum(data).call(candlestick);
+        svg.selectAll("g.x.axis").call(xAxis);
+        svg.selectAll("g.y.axis").call(yAxis);
+    }
 
 </script>
