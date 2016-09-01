@@ -13,6 +13,13 @@
         shape-rendering: crispEdges;
     }
 
+    button {
+        position: absolute;
+        right: 60px;
+        top: 450px;
+        display: none;
+    }
+
     .williams path {
         fill: none;
         stroke-width: 1;
@@ -25,6 +32,7 @@
 
 </style>
 <body>
+<button>Update</button>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
@@ -76,29 +84,36 @@
             };
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        var williamsData = techan.indicator.williams()(data);
-        x.domain(williamsData.map(accessor.d));
-        y.domain(techan.scale.plot.williams().domain());
-
         svg.append("g")
-                .datum(williamsData)
-                .attr("class", "williams")
-                .call(williams);
+                .attr("class", "williams");
 
         svg.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
+                .attr("transform", "translate(0," + height + ")");
 
         svg.append("g")
                 .attr("class", "y axis")
-                .call(yAxis)
                 .append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 6)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
                 .text("William %R");
+
+        // Data to display initially
+        draw(data.slice(0, data.length-20));
+        // Only want this button to be active if the data has loaded
+        d3.select("button").on("click", function() { draw(data); }).style("display", "inline");
     });
+
+    function draw(data) {
+        var williamsData = techan.indicator.williams()(data);
+        x.domain(williamsData.map(williams.accessor().d));
+        y.domain(techan.scale.plot.williams().domain());
+
+        svg.selectAll("g.williams").datum(williamsData).call(williams);
+        svg.selectAll("g.x.axis").call(xAxis);
+        svg.selectAll("g.y.axis").call(yAxis);
+    }
 
 </script>
