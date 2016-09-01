@@ -13,6 +13,13 @@
         shape-rendering: crispEdges;
     }
 
+    button {
+        position: absolute;
+        right: 60px;
+        top: 450px;
+        display: none;
+    }
+
     path.candle {
         stroke: #000000;
     }
@@ -62,6 +69,7 @@
 
 </style>
 <body>
+<button>Update</button>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
@@ -160,21 +168,16 @@
 
         var supstanceData = [
             { start: new Date(2014, 2, 11), end: new Date(2014, 5, 9), value: 63.64 },
-            { start: new Date(2013, 10, 21), end: new Date(2014, 2, 17), value: 55.50 }
+            { start: new Date(2013, 10, 21), end: new Date(2014, 2, 17), value: 55.50 },
+            { start: new Date(2013, 10, 21), end: new Date(2014, 2, 17), value: 50.50 }
         ];
-
-        x.domain(data.map(accessor.d));
-        y.domain(techan.scale.plot.ohlc(data, accessor).domain());
-        percent.domain(techan.scale.plot.percent(y, accessor(data[0])).domain());
 
         svg.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
+                .attr("transform", "translate(0," + height + ")");
 
         svg.append("g")
                 .attr("class", "y axis")
-                .call(yAxis)
             .append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 6)
@@ -183,17 +186,28 @@
                 .text("Price ($)");
 
         svg.append("g")
-                .datum(data)
-                .attr("class", "candlestick")
-                .call(candlestick);
+                .attr("class", "candlestick");
 
         svg.append("g")
-                .datum(supstanceData)
                 .attr("class", "supstances")
-                .attr("clip-path", "url(#supstanceClip)")
-                .call(supstance)
-                .call(supstance.drag);
+                .attr("clip-path", "url(#supstanceClip)");
+
+        // Data to display initially
+        draw(data.slice(0, data.length-20), supstanceData.slice(0, supstanceData.length-1));
+        // Only want this button to be active if the data has loaded
+        d3.select("button").on("click", function() { draw(data, supstanceData); }).style("display", "inline");
     });
+
+    function draw(data, supstanceData) {
+        x.domain(data.map(candlestick.accessor().d));
+        y.domain(techan.scale.plot.ohlc(data, candlestick.accessor()).domain());
+        percent.domain(techan.scale.plot.percent(y, candlestick.accessor()(data[0])).domain());
+
+        svg.selectAll("g.candlestick").datum(data).call(candlestick);
+        svg.selectAll("g.x.axis").call(xAxis);
+        svg.selectAll("g.y.axis").call(yAxis);
+        svg.selectAll("g.supstances").datum(supstanceData).call(supstance).call(supstance.drag);
+    }
 
     function enter(d) {
         valueText.style("display", "inline");
