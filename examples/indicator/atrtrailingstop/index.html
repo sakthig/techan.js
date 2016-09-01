@@ -13,8 +13,11 @@
         shape-rendering: crispEdges;
     }
 
-    path.candle {
-        stroke: #000000;
+    button {
+        position: absolute;
+        right: 60px;
+        top: 450px;
+        display: none;
     }
 
     path.candle.body {
@@ -47,6 +50,7 @@
 
 </style>
 <body>
+<button>Update</button>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
@@ -110,35 +114,41 @@
             };
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        var atrtrailingstopData = techan.indicator.atrtrailingstop()(data);
-        x.domain(data.map(accessor.d));
-        y.domain(techan.scale.plot.atrtrailingstop(atrtrailingstopData).domain());
-
         svg.append("g")
-                .datum(data)
                 .attr("class", "candlestick")
-                .attr("clip-path", "url(#clip)")
-                .call(candlestick);
+                .attr("clip-path", "url(#clip)");
 
         svg.append("g")
-                .datum(atrtrailingstopData)
-                .attr("class", "atrtrailingstop")
-                .call(atrtrailingstop);
+                .attr("class", "atrtrailingstop");
 
         svg.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
+                .attr("transform", "translate(0," + height + ")");
 
         svg.append("g")
                 .attr("class", "y axis")
-                .call(yAxis)
             .append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 6)
                 .attr("dy", ".71em")
                 .style("text-anchor", "end")
                 .text("ATR Trailing Stop");
+
+        // Data to display initially
+        draw(data.slice(0, data.length-20));
+        // Only want this button to be active if the data has loaded
+        d3.select("button").on("click", function() { draw(data); }).style("display", "inline");
     });
+
+    function draw(data) {
+        var atrtrailingstopData = techan.indicator.atrtrailingstop()(data);
+        x.domain(data.map(atrtrailingstop.accessor().d));
+        y.domain(techan.scale.plot.atrtrailingstop(atrtrailingstopData).domain());
+
+        svg.selectAll("g.candlestick").datum(data).call(candlestick);
+        svg.selectAll("g.atrtrailingstop").datum(atrtrailingstopData).call(atrtrailingstop);
+        svg.selectAll("g.x.axis").call(xAxis);
+        svg.selectAll("g.y.axis").call(yAxis);
+    }
 
 </script>
