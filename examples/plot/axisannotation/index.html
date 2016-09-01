@@ -13,6 +13,13 @@
         shape-rendering: crispEdges;
     }
 
+    button {
+        position: absolute;
+        right: 70px;
+        top: 450px;
+        display: none;
+    }
+
     path.candle {
         stroke: #000000;
     }
@@ -46,6 +53,7 @@
 
 </style>
 <body>
+<button>Update</button>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
@@ -122,52 +130,68 @@
             };
         }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        x.domain(data.map(accessor.d));
-        y.domain(techan.scale.plot.ohlc(data, accessor).domain());
+        svg.append("g")
+                .attr("class", "candlestick");
 
         svg.append("g")
-                .datum(data)
-                .attr("class", "candlestick")
-                .call(candlestick);
+                .attr("class", "x axis top");
 
         svg.append("g")
-                .attr("class", "x axis")
-                .call(xTopAxis);
+                .attr("class", "x axis bottom")
+                .attr("transform", "translate(0," + height + ")");
 
         svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
+                .attr("class", "y axis left");
 
         svg.append("g")
-                .attr("class", "y axis")
-                .call(yAxis);
+                .attr("class", "y axis right")
+                .attr("transform", "translate(" + width + ",0)");
 
         svg.append("g")
-                .attr("class", "y axis")
-                .attr("transform", "translate(" + width + ",0)")
-                .call(yRightAxis);
-
-        svg.append("g")
-                .attr("class", "y annotation left")
-                .datum([data[130], data[100], data[0]])
-                .call(ohlcAnnotation);
+                .attr("class", "y annotation left");
 
         svg.append("g")
                 .attr("class", "x annotation bottom")
-                .attr("transform", "translate(0," + height + ")")
-                .datum([data[30]])
-                .call(timeAnnotation);
+                .attr("transform", "translate(0," + height + ")");
 
         svg.append("g")
-                .attr("class", "y annotation right")
-                .datum([data[188], data[80]])
-                .call(ohlcRightAnnotation);
+                .attr("class", "y annotation right");
 
         svg.append("g")
-                .attr("class", "x annotation top")
-                .datum([data[80]])
-                .call(timeTopAnnotation);
+                .attr("class", "x annotation top");
+
+        // Data to display initially
+        draw(data.slice(0, data.length-20),
+                [data[80]],
+                [data[130], data[0]],
+                [data[80]],
+                [data[30]]
+        );
+        // Only want this button to be active if the data has loaded
+        d3.select("button").style("display", "inline").on("click",
+                function() {
+                    draw(data,
+                        [data[80]],
+                        [data[131], data[100]],
+                        [data[188], data[80]],
+                        [data[30], data[100]]);
+        });
     });
+
+    function draw(data, topData, leftData, rightData, bottomData) {
+        x.domain(data.map(candlestick.accessor().d));
+        y.domain(techan.scale.plot.ohlc(data, candlestick.accessor()).domain());
+
+        svg.selectAll("g.candlestick").datum(data).call(candlestick);
+        svg.selectAll("g.x.axis.bottom").call(xAxis);
+        svg.selectAll("g.x.axis.top").call(xTopAxis);
+        svg.selectAll("g.y.axis.left").call(yAxis);
+        svg.selectAll("g.y.axis.right").call(yRightAxis);
+
+        svg.selectAll("g.x.annotation.top").datum(topData).call(timeTopAnnotation);
+        svg.selectAll("g.y.annotation.left").datum(leftData).call(ohlcAnnotation);
+        svg.selectAll("g.y.annotation.right").datum(rightData).call(ohlcRightAnnotation);
+        svg.selectAll("g.x.annotation.bottom").datum(bottomData).call(timeAnnotation);
+    }
 
 </script>
