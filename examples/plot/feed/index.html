@@ -132,7 +132,8 @@
             .xScale(x)
             .yScale(y)
             .xAnnotation(timeAnnotation)
-            .yAnnotation([ohlcAnnotation, volumeAnnotation]);
+            .yAnnotation([ohlcAnnotation, volumeAnnotation])
+            .on("move", move);
 
     var svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -189,6 +190,12 @@
 
     svg.append('g')
             .attr("class", "crosshair ohlc");
+
+    var coordsText = svg.append('text')
+            .style("text-anchor", "end")
+            .attr("class", "coords")
+            .attr("x", width - 5)
+            .attr("y", 15);
 
     var feed;
 
@@ -257,6 +264,12 @@
 
             redraw(newData);
         }, (Math.random()*1000)+400); // Randomly pick an interval to update the chart
+    }
+
+    function move(coords) {
+        coordsText.text(
+                timeAnnotation.format()(coords[0]) + ", " + ohlcAnnotation.format()(coords[1])
+        );
     }
 
 </script>
