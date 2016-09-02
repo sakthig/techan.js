@@ -194,6 +194,7 @@
 
         svg.append('g')
                 .attr("class", "crosshair")
+                .datum({ x: x.domain()[80], y: 67.5})
                 .call(crosshair);
 
         svg.append('text')
