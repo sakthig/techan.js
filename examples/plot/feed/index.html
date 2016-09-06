@@ -268,7 +268,7 @@
 
     function move(coords) {
         coordsText.text(
-                timeAnnotation.format()(coords[0]) + ", " + ohlcAnnotation.format()(coords[1])
+                timeAnnotation.format()(coords.x) + ", " + ohlcAnnotation.format()(coords.y)
         );
     }
 
