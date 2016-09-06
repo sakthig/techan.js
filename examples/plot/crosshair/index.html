@@ -194,8 +194,9 @@
 
         svg.append('g')
                 .attr("class", "crosshair")
-                .datum({ x: x.domain()[80], y: 67.5})
-                .call(crosshair);
+                .datum({ x: x.domain()[80], y: 67.5 })
+                .call(crosshair)
+                .each(function(d) { move(d); }); // Display the current data
 
         svg.append('text')
                 .attr("x", 5)
@@ -213,7 +214,7 @@
 
     function move(coords) {
         coordsText.text(
-            timeAnnotation.format()(coords[0]) + ", " + ohlcAnnotation.format()(coords[1])
+            timeAnnotation.format()(coords.x) + ", " + ohlcAnnotation.format()(coords.y)
         );
     }
 
