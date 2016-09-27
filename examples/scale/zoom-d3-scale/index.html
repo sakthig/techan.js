@@ -6,11 +6,8 @@
         font: 10px sans-serif;
     }
 
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
+    text {
+        fill: #000;
     }
 
     path.candle {
@@ -39,7 +36,7 @@
 
 </style>
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v4.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
 
@@ -47,28 +44,24 @@
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
-    var parseDate = d3.time.format("%d-%b-%y").parse;
+    var parseDate = d3.timeParse("%d-%b-%y");
 
-    var x = d3.time.scale()
+    var x = d3.scaleTime()
             .range([0, width]);
 
-    var y = d3.scale.linear()
+    var y = d3.scaleLinear()
             .range([height, 0]);
 
-    var zoom = d3.behavior.zoom()
-            .on("zoom", draw);
+    var zoom = d3.zoom()
+            .on("zoom", zoomed);
 
     var candlestick = techan.plot.candlestick()
             .xScale(x)
             .yScale(y);
 
-    var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom");
+    var xAxis = d3.axisBottom(x);
 
-    var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left");
+    var yAxis = d3.axisLeft(y);
 
     var svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -126,10 +119,17 @@
 
         svg.select("g.candlestick").datum(data);
         draw();
-
-        // Associate the zoom with the scale after a domain has been applied
-        zoom.x(x.clamp(false)).y(y);
     });
+
+    function zoomed() {
+        var scaledX = d3.event.transform.rescaleX(x),
+            scaledY = d3.event.transform.rescaleY(y);
+        candlestick.xScale(scaledX);
+        candlestick.yScale(scaledY);
+        xAxis.scale(scaledX);
+        yAxis.scale(scaledY);
+        draw();
+    }
 
     function draw() {
         svg.select("g.candlestick").call(candlestick);
