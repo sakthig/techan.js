@@ -6,13 +6,6 @@
         font: 10px sans-serif;
     }
 
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-    }
-
     rect.pane {
         cursor: move;
         fill: none;
@@ -21,7 +14,7 @@
 
 </style>
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v4.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
 
@@ -29,41 +22,23 @@
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
-    var parseDate = d3.time.format("%d-%b-%y%Z").parse;
+    var parseDate = d3.timeParse("%d-%b-%y%Z");
 
-    var parseIntradayDate = d3.time.format("%Y%m%d%H%M%Z").parse;
+    var parseIntradayDate = d3.timeParse("%Y%m%d%H%M%Z");
 
-    var zoomTechan = d3.behavior.zoom()
-            .on("zoom", draw);
+    var zoomTechan = d3.zoom()
+            .on("zoom", zoomed);
 
-    var zoomTechanNonClamped = d3.behavior.zoom();
-
-    var zoomTechanUtcNonClamped = d3.behavior.zoom();
-
-    var zoomX = d3.behavior.zoom();
-
-    var zoomXUtc = d3.behavior.zoom();
-
-    var zoomTechanIntraday = d3.behavior.zoom();
-
-    var zoomTechanIntradayNonClamped = d3.behavior.zoom();
-
-    var zoomTechanIntradayUtcNonClamped = d3.behavior.zoom();
-
-    var zoomXIntraday = d3.behavior.zoom();
-
-    var zoomXIntradayUtc = d3.behavior.zoom();
-
-    var x = d3.time.scale()
+    var x = d3.scaleTime()
             .range([0, width]);
 
-    var xUtc = d3.time.scale.utc()
+    var xUtc = d3.scaleUtc()
             .range([0, width]);
 
-    var xIntraday = d3.time.scale()
+    var xIntraday = d3.scaleTime()
             .range([0, width]);
 
-    var xIntradayUtc = d3.time.scale.utc()
+    var xIntradayUtc = d3.scaleUtc()
             .range([0, width]);
 
     var techanTime = techan.scale.financetime()
@@ -84,45 +59,32 @@
     var techanIntradayUtcTimeNonClamped = techan.scale.financetime.utc()
             .range([0, width]);
 
-    var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom");
+    var techanTimeInit,
+        techanTimeNonClampedInit,
+        techanTimeUtcNonClampedInit,
+        techanIntradayTimeInit,
+        techanIntradayTimeNonClampedInit,
+        techanIntradayUtcTimeNonClampedInit;
 
-    var xAxisUtc = d3.svg.axis()
-            .scale(xUtc)
-            .orient("bottom");
+    var xAxis = d3.axisBottom(x);
 
-    var xAxisIntraday = d3.svg.axis()
-            .scale(xIntraday)
-            .orient("bottom");
+    var xAxisUtc = d3.axisBottom(xUtc);
 
-    var xAxisIntradayUtc = d3.svg.axis()
-            .scale(xIntradayUtc)
-            .orient("bottom");
+    var xAxisIntraday = d3.axisBottom(xIntraday);
 
-    var xAxisTechan = d3.svg.axis()
-            .scale(techanTime)
-            .orient("bottom");
+    var xAxisIntradayUtc = d3.axisBottom(xIntradayUtc);
 
-    var xAxisTechanNonClamped = d3.svg.axis()
-            .scale(techanTimeNonClamped)
-            .orient("bottom");
+    var xAxisTechan = d3.axisBottom(techanTime);
 
-    var xAxisTechanUtcNonClamped = d3.svg.axis()
-            .scale(techanTimeUtcNonClamped)
-            .orient("bottom");
+    var xAxisTechanNonClamped = d3.axisBottom(techanTimeNonClamped);
 
-    var xAxisTechanIntraday = d3.svg.axis()
-            .scale(techanIntradayTime)
-            .orient("bottom");
+    var xAxisTechanUtcNonClamped = d3.axisBottom(techanTimeUtcNonClamped);
 
-    var xAxisTechanIntradayNonClamped = d3.svg.axis()
-            .scale(techanIntradayTimeNonClamped)
-            .orient("bottom");
+    var xAxisTechanIntraday = d3.axisBottom(techanIntradayTime);
 
-    var xAxisTechanIntradayUtcNonClamped = d3.svg.axis()
-            .scale(techanIntradayUtcTimeNonClamped)
-            .orient("bottom");
+    var xAxisTechanIntradayNonClamped = d3.axisBottom(techanIntradayTimeNonClamped);
+
+    var xAxisTechanIntradayUtcNonClamped = d3.axisBottom(techanIntradayUtcTimeNonClamped);
 
     var svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -242,14 +204,9 @@
 
         x.domain(d3.extent(data.map(accessor.d)));
         xUtc.domain(d3.extent(data.map(accessor.d)));
-        techanTime.domain(data.map(accessor.d));
-        techanTimeNonClamped.domain(data.map(accessor.d));
-        techanTimeUtcNonClamped.domain(data.map(accessor.d));
-        zoomTechan.x(techanTime.zoomable());
-        zoomTechanNonClamped.x(techanTimeNonClamped.zoomable().clamp(false));
-        zoomTechanUtcNonClamped.x(techanTimeUtcNonClamped.zoomable().clamp(false));
-        zoomX.x(x);
-        zoomXUtc.x(xUtc);
+        techanTimeInit = techanTime.domain(data.map(accessor.d)).zoomable().copy();
+        techanTimeNonClampedInit = techanTimeNonClamped.domain(data.map(accessor.d)).zoomable().clamp(false).copy();
+        techanTimeUtcNonClampedInit = techanTimeUtcNonClamped.domain(data.map(accessor.d)).zoomable().clamp(false).copy();
         draw(); // Could this ever clash with the other data load?
     });
 
@@ -268,45 +225,30 @@
 
         xIntraday.domain(d3.extent(data.map(accessor.d)));
         xIntradayUtc.domain(d3.extent(data.map(accessor.d)));
-        techanIntradayTime.domain(data.map(accessor.d));
-        techanIntradayTimeNonClamped.domain(data.map(accessor.d));
-        techanIntradayUtcTimeNonClamped.domain(data.map(accessor.d));
-        zoomTechanIntraday.x(techanIntradayTime.zoomable());
-        zoomTechanIntradayNonClamped.x(techanIntradayTimeNonClamped.zoomable().clamp(false));
-        zoomTechanIntradayUtcNonClamped.x(techanIntradayUtcTimeNonClamped.zoomable().clamp(false));
-        zoomXIntraday.x(xIntraday);
-        zoomXIntradayUtc.x(xIntradayUtc);
+        techanIntradayTimeInit = techanIntradayTime.domain(data.map(accessor.d)).zoomable().copy();
+        techanIntradayTimeNonClampedInit = techanIntradayTimeNonClamped.domain(data.map(accessor.d)).zoomable().clamp(false).copy();
+        techanIntradayUtcTimeNonClampedInit = techanIntradayUtcTimeNonClamped.domain(data.map(accessor.d)).zoomable().clamp(false).copy();
         draw(); // Could this ever clash with the other data load?
     });
 
+    function zoomed() {
+        var transform = d3.event.transform;
+        techanTime.zoomable().domain(transform.rescaleX(techanTimeInit).domain());
+        techanTimeNonClamped.zoomable().domain(transform.rescaleX(techanTimeNonClampedInit).domain());
+        techanTimeUtcNonClamped.zoomable().domain(transform.rescaleX(techanTimeUtcNonClampedInit).domain());
+        techanIntradayTime.zoomable().domain(transform.rescaleX(techanIntradayTimeInit).domain());
+        techanIntradayTimeNonClamped.zoomable().domain(transform.rescaleX(techanIntradayTimeNonClampedInit).domain());
+        techanIntradayUtcTimeNonClamped.zoomable().domain(transform.rescaleX(techanIntradayUtcTimeNonClampedInit).domain());
+
+        xAxis.scale(transform.rescaleX(x));
+        xAxisUtc.scale(transform.rescaleX(xUtc));
+        xAxisIntraday.scale(transform.rescaleX(xIntraday));
+        xAxisIntradayUtc.scale(transform.rescaleX(xIntradayUtc));
+
+        draw();
+    }
+
     function draw() {
-        zoomX.translate(zoomTechan.translate());
-        zoomX.scale(zoomTechan.scale());
-
-        zoomXUtc.translate(zoomTechan.translate());
-        zoomXUtc.scale(zoomTechan.scale());
-
-        zoomTechanNonClamped.translate(zoomTechan.translate());
-        zoomTechanNonClamped.scale(zoomTechan.scale());
-
-        zoomTechanUtcNonClamped.translate(zoomTechan.translate());
-        zoomTechanUtcNonClamped.scale(zoomTechan.scale());
-
-        zoomXIntraday.translate(zoomTechan.translate());
-        zoomXIntraday.scale(zoomTechan.scale());
-
-        zoomXIntradayUtc.translate(zoomTechan.translate());
-        zoomXIntradayUtc.scale(zoomTechan.scale());
-
-        zoomTechanIntraday.translate(zoomTechan.translate());
-        zoomTechanIntraday.scale(zoomTechan.scale());
-
-        zoomTechanIntradayNonClamped.translate(zoomTechan.translate());
-        zoomTechanIntradayNonClamped.scale(zoomTechan.scale());
-
-        zoomTechanIntradayUtcNonClamped.translate(zoomTechan.translate());
-        zoomTechanIntradayUtcNonClamped.scale(zoomTechan.scale());
-
         svg.select("g.x.axis.d3.daily").call(xAxis);
         svg.select("g.x.axis.d3.daily-utc").call(xAxisUtc);
         svg.select("g.x.axis.techan.daily.clamped").call(xAxisTechan);
