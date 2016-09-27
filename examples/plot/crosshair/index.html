@@ -6,13 +6,6 @@
         font: 10px sans-serif;
     }
 
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-    }
-
     path.candle {
         stroke: #000000;
     }
@@ -58,7 +51,7 @@
 
 </style>
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v4.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
 
@@ -66,50 +59,46 @@
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
-    var parseDate = d3.time.format("%d-%b-%y").parse;
+    var parseDate = d3.timeParse("%d-%b-%y");
 
     var x = techan.scale.financetime()
             .range([0, width]);
 
-    var y = d3.scale.linear()
+    var y = d3.scaleLinear()
             .range([height, 0]);
 
     var candlestick = techan.plot.candlestick()
             .xScale(x)
             .yScale(y);
 
-    var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom");
+    var xAxis = d3.axisBottom(x);
 
-    var xTopAxis = d3.svg.axis()
-            .scale(x)
-            .orient("top");
+    var xTopAxis = d3.axisTop(x);
 
-    var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left");
+    var yAxis = d3.axisLeft(y);
 
-    var yRightAxis = d3.svg.axis()
-            .scale(y)
-            .orient("right");
+    var yRightAxis = d3.axisRight(y);
 
     var ohlcAnnotation = techan.plot.axisannotation()
             .axis(yAxis)
-            .format(d3.format(',.2fs'));
+            .orient('left')
+            .format(d3.format(',.2f'));
 
     var ohlcRightAnnotation = techan.plot.axisannotation()
             .axis(yRightAxis)
+            .orient('right')
             .translate([width, 0]);
 
     var timeAnnotation = techan.plot.axisannotation()
             .axis(xAxis)
-            .format(d3.time.format('%Y-%m-%d'))
+            .orient('bottom')
+            .format(d3.timeFormat('%Y-%m-%d'))
             .width(65)
             .translate([0, height]);
 
     var timeTopAnnotation = techan.plot.axisannotation()
-            .axis(xTopAxis);
+            .axis(xTopAxis)
+            .orient('top');
 
     var crosshair = techan.plot.crosshair()
             .xScale(x)
