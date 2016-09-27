@@ -6,13 +6,6 @@
         font: 10px sans-serif;
     }
 
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-    }
-
     .axis text {
         font-size: 6px;
     }
@@ -74,7 +67,7 @@
 
 </style>
 <body>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v4.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
 
@@ -84,23 +77,23 @@
                 height = fullHeight - margin.top - margin.bottom,
                 volumeHeight = fullHeight*.25;
 
-        var parseDate = d3.time.format("%d-%b-%y").parse;
+        var parseDate = d3.timeParse("%d-%b-%y");
 
-        var zoom = d3.behavior.zoom()
-                .on("zoom", draw);
-
-        var zoomPercent = d3.behavior.zoom();
+        var zoom = d3.zoom()
+                .on("zoom", zoomed);
 
         var x = techan.scale.financetime()
                 .range([0, width]);
 
-        var y = d3.scale.linear()
+        var y = d3.scaleLinear()
                 .range([height, 0]);
 
         var yPercent = y.copy();   // Same as y at this stage, will get a different domain later
 
-        var yVolume = d3.scale.linear()
+        var yVolume = d3.scaleLinear()
                 .range([height, height - volumeHeight]);
+
+        var yInit, yPercentInit, zoomableInit;
 
         var candlestick = techan.plot.candlestick()
                 .xScale(x)
@@ -123,25 +116,17 @@
                 .xScale(x)
                 .yScale(yVolume);
 
-        var xAxis = d3.svg.axis()
-                .scale(x)
-                .ticks(4)
-                .orient("bottom");
+        var xAxis = d3.axisBottom(x)
+                .ticks(4);
 
-        var yAxis = d3.svg.axis()
-                .scale(y)
-                .ticks(4)
-                .orient("right");
+        var yAxis = d3.axisRight(y)
+                .ticks(4);
 
-        var percentAxis = d3.svg.axis()
-                .scale(yPercent)
-                .orient("left")
+        var percentAxis = d3.axisLeft(yPercent)
                 .ticks(4)
                 .tickFormat(d3.format('+.1%'));
 
-        var volumeAxis = d3.svg.axis()
-                .scale(yVolume)
-                .orient("right")
+        var volumeAxis = d3.axisRight(yVolume)
                 .ticks(2)
                 .tickFormat(d3.format(",.3s"));
 
@@ -232,14 +217,12 @@
             svg.select("g.sma.ma-1").datum(techan.indicator.sma().period(20)(data)).call(sma1);
             svg.select("g.ema.ma-2").datum(techan.indicator.ema().period(50)(data)).call(ema2);
 
-            var zoomable = x.zoomable();
-            zoomable.domain([indicatorPreRoll, data.length]); // Zoom in a little to hide indicator preroll
+
+            zoomableInit = x.zoomable().domain([indicatorPreRoll, data.length]).copy(); // Zoom in a little to hide indicator preroll
+            yInit = y.copy();
+            yPercentInit = yPercent.copy();
 
             draw();
-
-            // Associate the zoom with the scale after a domain has been applied
-            zoom.x(zoomable).y(y);
-            zoomPercent.y(yPercent);
         });
 
         function reset() {
@@ -248,10 +231,15 @@
             draw();
         }
 
-        function draw() {
-            zoomPercent.translate(zoom.translate());
-            zoomPercent.scale(zoom.scale());
+        function zoomed() {
+            x.zoomable().domain(d3.event.transform.rescaleX(zoomableInit).domain());
+            y.domain(d3.event.transform.rescaleY(yInit).domain());
+            yPercent.domain(d3.event.transform.rescaleY(yPercentInit).domain());
 
+            draw();
+        }
+
+        function draw() {
             svg.select("g.x.axis").call(xAxis);
             svg.select("g.y.axis").call(yAxis);
             svg.select("g.volume.axis").call(volumeAxis);
