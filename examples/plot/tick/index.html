@@ -6,11 +6,8 @@
         font: 10px sans-serif;
     }
 
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
+    text {
+        fill: #000;
     }
 
     button {
@@ -57,7 +54,7 @@
 </style>
 <body>
 <button>Update</button>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v4.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
     
@@ -67,7 +64,7 @@
         height = 500 - margin.top - margin.bottom,
         height2 = 500 - margin2.top - margin2.bottom;
 
-    var tickDateTimeParser = d3.time.format("%Y-%m-%dT%H:%M:%S.%L").parse;
+    var tickDateTimeParser = d3.timeParse("%Y-%m-%dT%H:%M:%S.%L");
 
     var x = techan.scale.financetime()
             .range([0, width]);
@@ -75,17 +72,18 @@
     var x2 = techan.scale.financetime()
             .range([0, width]);
 
-    var y = d3.scale.linear()
+    var y = d3.scaleLinear()
             .range([height, 0]);
 
-    var yVolume = d3.scale.linear()
+    var yVolume = d3.scaleLinear()
             .range([y(0), y(0.3)]);
 
-    var y2 = d3.scale.linear()
+    var y2 = d3.scaleLinear()
             .range([height2, 0]);
 
-    var brush = d3.svg.brush()
-            .on("brushend", draw);
+    var brush = d3.brushX()
+            .extent([[0, 0], [width, height2]])
+            .on("end", brushed);
 
     var tick = techan.plot.tick()
             .xScale(x)
@@ -101,30 +99,24 @@
             .xScale(x2)
             .yScale(y2);
 
-    var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom");
+    var xAxis = d3.axisBottom(x);
 
-    var xAxis2 = d3.svg.axis()
-            .scale(x2)
-            .orient("bottom");
+    var xAxis2 = d3.axisBottom(x2);
 
-    var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left");
+    var yAxis = d3.axisLeft(y);
 
-    var yAxis2 = d3.svg.axis()
-            .scale(y2)
-            .ticks(0)
-            .orient("left");
+    var yAxis2 = d3.axisLeft(y2)
+            .ticks(0);
 
     var tickAnnotation = techan.plot.axisannotation()
             .axis(yAxis)
-            .format(d3.format(',.6fs'));
+            .orient('left')
+            .format(d3.format(',.6f'));
 
     var timeAnnotation = techan.plot.axisannotation()
             .axis(xAxis)
-            .format(d3.time.format('%H:%M:%S.%L'))
+            .orient('bottom')
+            .format(d3.timeFormat('%H:%M:%S.%L'))
             .width(70)
             .translate([0, height]);
 
@@ -193,8 +185,6 @@
             .attr("class", "y axis")
             .call(yAxis2);
 
-    var zoomable, zoomable2;
-    
     d3.json("data.json", function(error, json) {
     	var accessor = tick.accessor();
     	data = json.slice(0, 3500).map(function(d, index, array){
@@ -223,19 +213,25 @@
         context.select("g.x.axis").call(xAxis2);
 
         // Associate the brush with the scale and render the brush only AFTER a domain has been applied
-        zoomable = x.zoomable();
-        zoomable2 = x2.zoomable();
-        brush.x(zoomable2);
         context.select("g.pane").call(brush).selectAll("rect").attr("height", height2);
 
+        x.zoomable().domain(x2.zoomable().domain());
         draw();
     });
+
+    function brushed() {
+        var zoomable = x.zoomable(),
+            zoomable2 = x2.zoomable();
+
+        zoomable.domain(zoomable2.domain());
+        if(d3.event.selection !== null) zoomable.domain(d3.event.selection.map(zoomable.invert));
+        draw();
+    }
 
     function draw() {
         var tickSelection = focus.select("g.tick"),
             data = tickSelection.datum();
-        zoomable.domain(brush.empty() ? zoomable2.domain() : brush.extent());
-        y.domain(techan.scale.plot.ohlc(data.slice.apply(data, zoomable.domain()), tick.accessor()).domain());
+        y.domain(techan.scale.plot.ohlc(data.slice.apply(data, x.zoomable().domain()), tick.accessor()).domain());
         tickSelection.call(tick);
         focus.select("g.spread").call(volume);
         focus.select("g.x.axis").call(xAxis);
