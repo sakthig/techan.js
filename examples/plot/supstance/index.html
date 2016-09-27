@@ -6,11 +6,8 @@
         font: 10px sans-serif;
     }
 
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
+    text {
+        fill: #000;
     }
 
     button {
@@ -70,7 +67,7 @@
 </style>
 <body>
 <button>Update</button>
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v4.min.js"></script>
 <script src="http://techanjs.org/techan.min.js"></script>
 <script>
 
@@ -78,13 +75,13 @@
             width = 960 - margin.left - margin.right,
             height = 500 - margin.top - margin.bottom;
 
-    var parseDate = d3.time.format("%d-%b-%y").parse,
-            valueFormat = d3.format(',.2fs');
+    var parseDate = d3.timeParse("%d-%b-%y"),
+        valueFormat = d3.format(',.2f');
 
     var x = techan.scale.financetime()
             .range([0, width]);
 
-    var y = d3.scale.linear()
+    var y = d3.scaleLinear()
             .range([height, 0]);
 
     var percent = y.copy();
@@ -93,24 +90,20 @@
             .xScale(x)
             .yScale(y);
 
-    var xAxis = d3.svg.axis()
-            .scale(x)
-            .orient("bottom");
+    var xAxis = d3.axisBottom(x);
 
-    var yAxis = d3.svg.axis()
-            .scale(y)
-            .orient("left");
+    var yAxis = d3.axisLeft(y);
 
-    var percentAxis = d3.svg.axis()
-            .scale(percent)
-            .orient("right");
+    var percentAxis = d3.axisRight(percent);
 
     var ohlcAnnotation = techan.plot.axisannotation()
             .axis(yAxis)
-            .format(d3.format(',.2fs'));
+            .orient('left')
+            .format(d3.format(',.2f'));
 
     var percentAnnotation = techan.plot.axisannotation()
             .axis(percentAxis)
+            .orient('right')
             .format(d3.format('+.1%'));
 
     var supstance = techan.plot.supstance()
