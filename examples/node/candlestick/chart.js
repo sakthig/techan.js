@@ -12,12 +12,12 @@ function chart(d3, techan, csvData) {
       width = 960 - margin.left - margin.right,
       height = 250 - margin.top - margin.bottom;
 
-  var parseDate = d3.time.format("%d-%b-%y").parse;
+  var parseDate = d3.timeParse("%d-%b-%y");
 
   var x = techan.scale.financetime()
     .range([0, width]);
 
-  var y = d3.scale.linear()
+  var y = d3.scaleLinear()
     .range([height, 0]);
 
   var candlestick = techan.plot.candlestick()
@@ -26,13 +26,9 @@ function chart(d3, techan, csvData) {
 
   var accessor = candlestick.accessor();
 
-  var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
+  var xAxis = d3.axisBottom(x);
 
-  var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left");
+  var yAxis = d3.axisLeft(y);
 
   var data = csvData.slice(0, 200).map(function (d) {
     return {

@@ -6,7 +6,7 @@ var d3 = require('d3');
 var techan = require('techan');
 var chart = require('./chart');
 
-var csvData = d3.csv.parse(fs.readFileSync('./data.csv', { encoding: 'utf-8' }).trim());
+var csvData = d3.csvParse(fs.readFileSync('./data.csv', { encoding: 'utf-8' }).trim());
 
 var document = require('jsdom').jsdom();
 // Create the chart, passing in runtime environment specific setup: node d3, techan and csv data
