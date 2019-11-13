@@ -1,6 +1,3 @@
-[submodule "examples/plot/ohlc"]
-	path = examples/plot/ohlc
-	url = https://gist.github.com/06ad3573c0053d0e1fc7.git
 [submodule "examples/plot/close"]
 	path = examples/plot/close
 	url = https://gist.github.com/af8674d57980790137a0.git
