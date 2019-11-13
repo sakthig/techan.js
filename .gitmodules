@@ -1,6 +1,3 @@
-[submodule "examples/indicator/rsi"]
-	path = examples/indicator/rsi
-	url = https://gist.github.com/6da267f1c51a13dea35b.git
 [submodule "examples/scale/financetime"]
 	path = examples/scale/financetime
 	url = https://gist.github.com/17be8c0973ac92acd6e5.git
