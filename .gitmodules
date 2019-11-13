@@ -1,6 +1,3 @@
-[submodule "examples/scale/financetime"]
-	path = examples/scale/financetime
-	url = https://gist.github.com/17be8c0973ac92acd6e5.git
 [submodule "examples/plot/multiplots"]
 	path = examples/plot/multiplots
 	url = https://gist.github.com/274b54b4d2c2ffa19fca.git
