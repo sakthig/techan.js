@@ -1,6 +1,3 @@
-[submodule "examples/indicator/aroon"]
-	path = examples/indicator/aroon
-	url = https://gist.github.com/f18938b1adeb27e0b6fd.git
 [submodule "examples/indicator/bollinger"]
 	path = examples/indicator/bollinger
 	url = https://gist.github.com/2da5cf683eb1e0589fa10418d442479c.git
