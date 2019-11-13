@@ -1,6 +1,3 @@
-[submodule "examples/plot/multiplots"]
-	path = examples/plot/multiplots
-	url = https://gist.github.com/274b54b4d2c2ffa19fca.git
 [submodule "examples/plot/trendline"]
 	path = examples/plot/trendline
 	url = https://gist.github.com/69f49097e9bb5c0c6e4d.git
