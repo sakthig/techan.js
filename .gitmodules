@@ -1,6 +1,3 @@
-[submodule "examples/plot/candlestick"]
-	path = examples/plot/candlestick
-	url = https://gist.github.com/27c4a333b0e0813e093d.git
 [submodule "examples/plot/volume"]
 	path = examples/plot/volume
 	url = https://gist.github.com/f9cb47fa9e32ce34011a.git
