@@ -1,6 +1,3 @@
-[submodule "examples/plot/crosshair"]
-	path = examples/plot/crosshair
-	url = https://gist.github.com/045f550b72ad46301130.git
 [submodule "examples/plot/feed"]
 	path = examples/plot/feed
 	url = https://gist.github.com/95f1f22130fb1a3a8181.git
