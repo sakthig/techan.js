@@ -1,6 +1,3 @@
-[submodule "examples/plot/close"]
-	path = examples/plot/close
-	url = https://gist.github.com/af8674d57980790137a0.git
 [submodule "examples/scale/zoom"]
 	path = examples/scale/zoom
 	url = https://gist.github.com/a48008ea8e2c832144db.git
