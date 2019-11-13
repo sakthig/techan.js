@@ -1,6 +1,3 @@
-[submodule "examples/plot/tradearrow"]
-	path = examples/plot/tradearrow
-	url = https://gist.github.com/3c0eefdd77a6380b1a35.git
 [submodule "examples/indicator/williams"]
 	path = examples/indicator/williams
 	url = https://gist.github.com/c12073b8800f50dd9de03ce590073ab6.git
