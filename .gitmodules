@@ -1,6 +1,3 @@
-[submodule "examples/scale/zoom"]
-	path = examples/scale/zoom
-	url = https://gist.github.com/a48008ea8e2c832144db.git
 [submodule "examples/indicator/macd"]
 	path = examples/indicator/macd
 	url = https://gist.github.com/10d701ccb3b8b1e99878.git
