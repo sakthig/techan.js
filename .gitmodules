@@ -1,6 +1,3 @@
-[submodule "examples/indicator/williams"]
-	path = examples/indicator/williams
-	url = https://gist.github.com/c12073b8800f50dd9de03ce590073ab6.git
 [submodule "examples/indicator/stochastic"]
 	path = examples/indicator/stochastic
 	url = https://gist.github.com/ca282714b8a0580e56623053b18ce8f9.git
