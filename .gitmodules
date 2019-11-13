@@ -1,6 +1,3 @@
-[submodule "examples/plot/trendline"]
-	path = examples/plot/trendline
-	url = https://gist.github.com/69f49097e9bb5c0c6e4d.git
 [submodule "examples/plot/supstance"]
 	path = examples/plot/supstance
 	url = https://gist.github.com/10194a84a3e46fe127d4.git
