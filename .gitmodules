@@ -1,6 +1,3 @@
-[submodule "examples/plot/axisannotation"]
-	path = examples/plot/axisannotation
-	url = https://gist.github.com/06d462978e089323a116.git
 [submodule "examples/plot/crosshair"]
 	path = examples/plot/crosshair
 	url = https://gist.github.com/045f550b72ad46301130.git
